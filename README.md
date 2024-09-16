@@ -48,6 +48,7 @@ KaFin2 is an innovative open-source project that combines cutting-edge AI techno
    ```
    uvicorn src.backend.main:app --reload
    ```
+   # need token.json for google drive
 
 ### Frontend Setup
 
@@ -74,18 +75,3 @@ KaFin2 is an innovative open-source project that combines cutting-edge AI techno
 2. The AI will interpret your request and fetch relevant data.
 3. View the generated dashboard with charts and analysis.
 4. Explore different visualizations and data points.
-
-## Contributing 🤝
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for more details.
-
-## License 📄
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments 🙏
-
-- OpenAI for providing the GPT-4 API
-- Federal Reserve Economic Data (FRED) for economic data
-- Yahoo Finance for stock data
-- The open-source community for various libraries and tools used in this project
