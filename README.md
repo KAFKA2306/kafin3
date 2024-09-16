@@ -14,7 +14,7 @@ KaFin2 is an innovative open-source project that combines cutting-edge AI techno
 
 ## Tech Stack 🛠
 
-- Backend: Python, Streamlit, Pandas, NumPy
+- Backend: Python, Streamlit, Pandas, NumPy, yfinance
 - Data Sources: yfinance, FRED API, Google Drive API
 - AI/ML: OpenAI API (GPT-4)
 - Frontend: Streamlit, Plotly, Tailwind CSS
@@ -22,16 +22,16 @@ KaFin2 is an innovative open-source project that combines cutting-edge AI techno
 
 ## Quick Start 🚀
 
-1. Visit [https://kafin2.streamlit.app](https://kafin2.streamlit.app)
-2. Log in with your GitHub account
-3. Enter your financial analysis request in natural language
-4. Explore the AI-generated dashboard
+1. Visit [https://kafin2-c4yymao99f2tnx8vdflb7o.streamlit.app](https://kafin2-c4yymao99f2tnx8vdflb7o.streamlit.app)
+2. Enter a stock ticker (e.g., AAPL, GOOGL) in the sidebar
+3. Adjust the number of days for analysis using the slider
+4. Explore the generated stock chart and financial analysis
 
 ## For Developers 🖥
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/kafin2.git
+   git clone https://github.com/KAFKA2306/kafin2.git
    cd kafin2
    ```
 
@@ -51,15 +51,36 @@ KaFin2 is an innovative open-source project that combines cutting-edge AI techno
 
 4. Run locally:
    ```
-   streamlit run app/main.py
+   streamlit run src/streamlit_app.py
    ```
 
-## Future Improvements
+## Deployment 🌐
 
-- Enhanced natural language processing
-- Optimized data retrieval and caching
-- User-friendly interface improvements
-- Comprehensive tutorial
-- Expanded test coverage
+To deploy KaFin2 on Streamlit Cloud:
+
+1. Fork this repository to your GitHub account.
+2. Sign up for a [Streamlit Cloud account](https://streamlit.io/cloud).
+3. Click on "New app" and select your forked repository.
+4. Set the main file path to `src/streamlit_app.py`.
+5. (Optional) Configure your app's subdomain.
+6. Click "Deploy!" to launch your app.
+
+## Future Improvements 🚀
+
+- Enhanced natural language processing for more complex financial queries
+- Integration with additional financial data sources
+- Advanced AI-driven financial forecasting and recommendations
+- User authentication and personalized dashboards
+- Mobile app development for on-the-go analysis
 
 Contribute to KaFin2 and help revolutionize financial analysis with AI!
+
+## License 📄
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments 🙏
+
+- OpenAI for providing the GPT-4 API
+- Streamlit for their excellent app framework
+- The open-source community for various libraries and tools used in this project
