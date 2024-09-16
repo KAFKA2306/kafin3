@@ -4,23 +4,30 @@ import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { useQuery } from '@tanstack/react-query';
+import AIAnalysis from '../components/AIAnalysis';
+import DynamicDashboard from '../components/DynamicDashboard';
+import FinancialDataAnalysis from '../components/FinancialDataAnalysis';
 
-const dummyChartData = [
-  { name: 'Jan', Toyota: 4000, Honda: 2400 },
-  { name: 'Feb', Toyota: 3000, Honda: 1398 },
-  { name: 'Mar', Toyota: 2000, Honda: 9800 },
-  { name: 'Apr', Toyota: 2780, Honda: 3908 },
-  { name: 'May', Toyota: 1890, Honda: 4800 },
-  { name: 'Jun', Toyota: 2390, Honda: 3800 },
-];
+const fetchFinancialData = async (query) => {
+  // This would be replaced with actual API call to your backend
+  const response = await fetch(`/api/financial-data?query=${encodeURIComponent(query)}`);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  return response.json();
+};
 
 const Index = () => {
   const [analysisRequest, setAnalysisRequest] = useState('');
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['financialData', analysisRequest],
+    queryFn: () => fetchFinancialData(analysisRequest),
+    enabled: false, // Don't run query on component mount
+  });
 
   const handleAnalysis = () => {
-    // Here you would integrate with your AI and data processing logic
-    console.log("Analyzing:", analysisRequest);
-    // For now, we'll just log the request
+    refetch();
   };
 
   return (
@@ -44,73 +51,39 @@ const Index = () => {
                 value={analysisRequest}
                 onChange={(e) => setAnalysisRequest(e.target.value)}
               />
-              <Button onClick={handleAnalysis}>Analyze</Button>
+              <Button onClick={handleAnalysis} disabled={isLoading}>
+                {isLoading ? 'Analyzing...' : 'Analyze'}
+              </Button>
             </div>
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="dashboard" className="mb-8">
-          <TabsList>
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="features">Features</TabsTrigger>
-            <TabsTrigger value="examples">Examples</TabsTrigger>
-          </TabsList>
-          <TabsContent value="dashboard">
-            <Card>
-              <CardHeader>
-                <CardTitle>Sample Dashboard</CardTitle>
-                <CardDescription>Toyota vs Honda Stock Comparison (Last 6 Months)</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={dummyChartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="Toyota" stroke="#8884d8" />
-                    <Line type="monotone" dataKey="Honda" stroke="#82ca9d" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="features">
-            <Card>
-              <CardHeader>
-                <CardTitle>Key Features</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="list-disc pl-5 space-y-2">
-                  <li>AI-driven natural language interface</li>
-                  <li>Dynamic dashboard generation</li>
-                  <li>Comprehensive financial data analysis</li>
-                  <li>Automatic data updates</li>
-                  <li>Multi-device support</li>
-                  <li>Cloud-native architecture</li>
-                  <li>Completely free and open-source</li>
-                </ul>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="examples">
-            <Card>
-              <CardHeader>
-                <CardTitle>Example Queries</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="list-disc pl-5 space-y-2">
-                  <li>"Compare Toyota and Honda stock prices for the past 3 months using a line chart."</li>
-                  <li>"Show the performance of Nikkei 225 and S&P 500 in 2023 with monthly return bar graphs."</li>
-                  <li>"Display the FED balance sheet and 10-year Treasury yield for the last 5 years and explain their correlation."</li>
-                  <li>"Create a scatter plot of USD/JPY exchange rate vs Nikkei 225 for the past year."</li>
-                  <li>"Compare GAFA (Google, Apple, Facebook, Amazon) stock performance YTD and show their returns in a table."</li>
-                </ul>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        {error && (
+          <Card className="mb-8 bg-red-50">
+            <CardContent>
+              <p className="text-red-500">Error: {error.message}</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {data && (
+          <Tabs defaultValue="dashboard" className="mb-8">
+            <TabsList>
+              <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+              <TabsTrigger value="aiAnalysis">AI Analysis</TabsTrigger>
+              <TabsTrigger value="financialData">Financial Data</TabsTrigger>
+            </TabsList>
+            <TabsContent value="dashboard">
+              <DynamicDashboard data={data} />
+            </TabsContent>
+            <TabsContent value="aiAnalysis">
+              <AIAnalysis data={data} />
+            </TabsContent>
+            <TabsContent value="financialData">
+              <FinancialDataAnalysis data={data} />
+            </TabsContent>
+          </Tabs>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card>
