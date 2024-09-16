@@ -1,8 +1,8 @@
 import os
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List
 import yfinance as yf
 import pandas as pd
 import numpy as np
@@ -19,7 +19,6 @@ load_dotenv()
 
 app = FastAPI()
 
-# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -28,11 +27,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# API keys and configurations
 openai.api_key = os.getenv("OPENAI_API_KEY")
 fred = Fred(api_key=os.getenv("FRED_API_KEY"))
 
-# Google Drive API setup
 SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
 creds = Credentials.from_authorized_user_file('token.json', SCOPES)
 drive_service = build('drive', 'v3', credentials=creds)
@@ -53,7 +50,6 @@ class AnalysisResponse(BaseModel):
 @app.post("/analyze", response_model=AnalysisResponse)
 async def analyze_financial_data(request: AnalysisRequest):
     try:
-        # Use GPT-4 to interpret the user's query
         gpt_response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
@@ -63,24 +59,17 @@ async def analyze_financial_data(request: AnalysisRequest):
         )
         interpretation = gpt_response.choices[0].message.content
 
-        # Extract relevant information from the GPT-4 interpretation
-        # This is a simplified example; in practice, you'd need more sophisticated parsing
         if "stock" in interpretation.lower():
-            symbol = interpretation.split()[-1]  # Assume the last word is the stock symbol
+            symbol = interpretation.split()[-1]
             data = get_stock_data(symbol)
         elif "fred" in interpretation.lower():
-            series_id = interpretation.split()[-1]  # Assume the last word is the FRED series ID
+            series_id = interpretation.split()[-1]
             data = get_fred_data(series_id)
         else:
             raise ValueError("Unable to interpret the query")
 
-        # Perform financial analysis
         analysis = perform_financial_analysis(data)
-
-        # Generate AI analysis
         ai_analysis = generate_ai_analysis(data, analysis)
-
-        # Prepare chart data
         chart_data = [{"date": date, "value": value} for date, value in zip(data.date, data.values)]
 
         return AnalysisResponse(
@@ -124,7 +113,6 @@ def perform_financial_analysis(data: FinancialData) -> dict:
         "pct_change": (data.values[-1] / data.values[0] - 1) * 100
     }
     
-    # Simple forecasting using Random Forest
     model = RandomForestRegressor(n_estimators=100, random_state=42)
     df['lag_1'] = df['value'].shift(1)
     df['lag_7'] = df['value'].shift(7)

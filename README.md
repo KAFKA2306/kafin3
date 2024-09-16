@@ -4,30 +4,24 @@ KaFin2 is an innovative open-source project that combines cutting-edge AI techno
 
 ## Key Features ✨
 
-- AI-driven natural language interface (OpenAI GPT-4) [Not Implemented]
-- Dynamic dashboard generation [Partially Implemented]
-- Comprehensive financial data analysis [Partially Implemented]
-- Automatic data updates [Not Implemented]
-- Multi-device support [Implemented]
-- Cloud-native architecture [Implemented]
-- Free and open-source [Implemented]
+- AI-driven natural language interface (OpenAI GPT-4)
+- Dynamic dashboard generation
+- Comprehensive financial data analysis
+- Automatic data updates
+- Multi-device support
+- Cloud-native architecture
+- Free and open-source
 
 ## Tech Stack 🛠
 
-- Backend: Python, Streamlit, Pandas, NumPy, yfinance
-- Data Sources: yfinance, FRED API [Not Implemented], Google Drive API [Not Implemented]
-- AI/ML: OpenAI API (GPT-4) [Not Implemented]
-- Frontend: Streamlit, Plotly, Tailwind CSS [Partially Implemented]
-- Infrastructure: Streamlit Cloud, GitHub, GitHub Actions [Partially Implemented]
+- Backend: Python, FastAPI, Pandas, NumPy, yfinance, FRED API, Google Drive API
+- AI/ML: OpenAI API (GPT-4), scikit-learn
+- Frontend: React, Recharts, Tailwind CSS
+- Infrastructure: GitHub, GitHub Actions
 
 ## Quick Start 🚀
 
-1. Visit [https://savvy-dashboard-ai-gfeeuv6xcuhzbksljwxc4j.streamlit.app/](https://savvy-dashboard-ai-gfeeuv6xcuhzbksljwxc4j.streamlit.app/)
-2. Enter a stock ticker (e.g., AAPL, GOOGL) in the sidebar
-3. Adjust the number of days for analysis using the slider
-4. Explore the generated stock chart and financial analysis
-
-## For Developers 🖥
+### Backend Setup
 
 1. Clone the repository:
    ```
@@ -35,43 +29,55 @@ KaFin2 is an innovative open-source project that combines cutting-edge AI techno
    cd kafin2
    ```
 
-2. Set up the environment:
+2. Set up a virtual environment:
    ```
    python -m venv venv
-   source venv/bin/activate  # Windows: venv\Scripts\activate
+   source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+   ```
+
+3. Install dependencies:
+   ```
    pip install -r requirements.txt
    ```
 
-3. Install required packages:
+4. Set up environment variables:
+   - Copy the `.env.example` file to `.env`
+   - Fill in your API keys for OpenAI and FRED
+
+5. Run the FastAPI server:
    ```
-   pip install streamlit pandas yfinance plotly
+   uvicorn src.backend.main:app --reload
    ```
 
-4. Run locally:
+### Frontend Setup
+
+1. Navigate to the frontend directory:
    ```
-   streamlit run src/streamlit_app.py
+   cd frontend
    ```
 
-## Deployment 🌐
+2. Install dependencies:
+   ```
+   npm install
+   ```
 
-To deploy KaFin2 on Streamlit Cloud:
+3. Start the development server:
+   ```
+   npm run dev
+   ```
 
-1. Fork this repository to your GitHub account.
-2. Sign up for a [Streamlit Cloud account](https://streamlit.io/cloud).
-3. Click on "New app" and select your forked repository.
-4. Set the main file path to `src/streamlit_app.py`.
-5. (Optional) Configure your app's subdomain.
-6. Click "Deploy!" to launch your app.
+4. Open your browser and visit `http://localhost:3000`
 
-## Future Improvements 🚀
+## Usage 💡
 
-- Enhanced natural language processing for more complex financial queries [Not Implemented]
-- Integration with additional financial data sources [Not Implemented]
-- Advanced AI-driven financial forecasting and recommendations [Not Implemented]
-- User authentication and personalized dashboards [Not Implemented]
-- Mobile app development for on-the-go analysis [Not Implemented]
+1. Enter your financial analysis request in natural language.
+2. The AI will interpret your request and fetch relevant data.
+3. View the generated dashboard with charts and analysis.
+4. Explore different visualizations and data points.
 
-Contribute to KaFin2 and help revolutionize financial analysis with AI!
+## Contributing 🤝
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for more details.
 
 ## License 📄
 
@@ -80,5 +86,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgments 🙏
 
 - OpenAI for providing the GPT-4 API
-- Streamlit for their excellent app framework
+- Federal Reserve Economic Data (FRED) for economic data
+- Yahoo Finance for stock data
 - The open-source community for various libraries and tools used in this project
