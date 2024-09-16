@@ -4,21 +4,21 @@ KaFin2 is an innovative open-source project that combines cutting-edge AI techno
 
 ## Key Features ✨
 
-- AI-driven natural language interface (OpenAI GPT-4)
-- Dynamic dashboard generation
-- Comprehensive financial data analysis
-- Automatic data updates
-- Multi-device support
-- Cloud-native architecture
-- Free and open-source
+- AI-driven natural language interface (OpenAI GPT-4) [Not Implemented]
+- Dynamic dashboard generation [Partially Implemented]
+- Comprehensive financial data analysis [Partially Implemented]
+- Automatic data updates [Not Implemented]
+- Multi-device support [Implemented]
+- Cloud-native architecture [Implemented]
+- Free and open-source [Implemented]
 
 ## Tech Stack 🛠
 
 - Backend: Python, Streamlit, Pandas, NumPy, yfinance
-- Data Sources: yfinance, FRED API, Google Drive API
-- AI/ML: OpenAI API (GPT-4)
-- Frontend: Streamlit, Plotly, Tailwind CSS
-- Infrastructure: Streamlit Cloud, GitHub, GitHub Actions
+- Data Sources: yfinance, FRED API [Not Implemented], Google Drive API [Not Implemented]
+- AI/ML: OpenAI API (GPT-4) [Not Implemented]
+- Frontend: Streamlit, Plotly, Tailwind CSS [Partially Implemented]
+- Infrastructure: Streamlit Cloud, GitHub, GitHub Actions [Partially Implemented]
 
 ## Quick Start 🚀
 
@@ -65,11 +65,11 @@ To deploy KaFin2 on Streamlit Cloud:
 
 ## Future Improvements 🚀
 
-- Enhanced natural language processing for more complex financial queries
-- Integration with additional financial data sources
-- Advanced AI-driven financial forecasting and recommendations
-- User authentication and personalized dashboards
-- Mobile app development for on-the-go analysis
+- Enhanced natural language processing for more complex financial queries [Not Implemented]
+- Integration with additional financial data sources [Not Implemented]
+- Advanced AI-driven financial forecasting and recommendations [Not Implemented]
+- User authentication and personalized dashboards [Not Implemented]
+- Mobile app development for on-the-go analysis [Not Implemented]
 
 Contribute to KaFin2 and help revolutionize financial analysis with AI!
 
