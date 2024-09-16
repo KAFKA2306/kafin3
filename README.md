@@ -22,7 +22,7 @@ KaFin2 is an innovative open-source project that combines cutting-edge AI techno
 
 ## Quick Start 🚀
 
-1. Visit [https://kafin2-c4yymao99f2tnx8vdflb7o.streamlit.app](https://kafin2-c4yymao99f2tnx8vdflb7o.streamlit.app)
+1. Visit [https://savvy-dashboard-ai-gfeeuv6xcuhzbksljwxc4j.streamlit.app/](https://savvy-dashboard-ai-gfeeuv6xcuhzbksljwxc4j.streamlit.app/)
 2. Enter a stock ticker (e.g., AAPL, GOOGL) in the sidebar
 3. Adjust the number of days for analysis using the slider
 4. Explore the generated stock chart and financial analysis
@@ -42,11 +42,9 @@ KaFin2 is an innovative open-source project that combines cutting-edge AI techno
    pip install -r requirements.txt
    ```
 
-3. Set environment variables:
+3. Install required packages:
    ```
-   export OPENAI_API_KEY=your_openai_api_key
-   export FRED_API_KEY=your_fred_api_key
-   export GOOGLE_DRIVE_CREDENTIALS='{your_google_drive_credentials_json}'
+   pip install streamlit pandas yfinance plotly
    ```
 
 4. Run locally:
