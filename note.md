@@ -1,0 +1,1 @@
+gpte C:\Windows\System32\savvy-dashboard-ai -i

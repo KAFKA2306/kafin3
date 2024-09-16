@@ -1,0 +1,106 @@
+[33mcommit ad625bc29befcc4d63c1ed531edf52db520a9a3d[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m)[m
+Author: KAFKA-A15 <ag1i5rer@gmail.com>
+Date:   Tue Sep 17 02:10:04 2024 +0900
+
+    Your commit message here
+
+[33mcommit 9ccf3107cc52a33deeec8ebba59b486bb7d4b902[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Sep 16 14:59:42 2024 +0000
+
+    Prepare additional file formats
+    
+    Added necessary file formats to the repository as required for project completion.
+    [skip gpt_engineer]
+
+[33mcommit 3378bc5b302210cc5612b82d360dbf63ba26cde4[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Sep 16 14:58:20 2024 +0000
+
+    Implement AI Features and Enhancements
+    
+    Add AI-driven natural language interface, dynamic dashboard generation, and comprehensive financial data analysis. Implement automatic data updates, FRED and Google Drive API integrations, and enhance Tailwind CSS usage. Integrate OpenAI API for advanced processing, and prepare for user authentication and mobile app development.
+    [skip gpt_engineer]
+
+[33mcommit 7c4290ea62b46cadb4e39ffd4b99d118ec36076b[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Sep 16 14:55:29 2024 +0000
+
+    Implement requested features and improvements
+    
+    Added various features and improvements as per the prompt. Refactored `src/pages/Index.jsx` to enhance readability and maintainability.
+    [skip gpt_engineer]
+
+[33mcommit 00331913f8566af0e57bbe250ed47b85a42f7895[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Sep 16 14:54:39 2024 +0000
+
+    Identify unimplemented features
+    
+    Reviewed the README to identify features that are not currently implemented in the project.
+    [skip gpt_engineer]
+
+[33mcommit ffe75e81210223a65f1cdb4bbb2924c8b48bcbc6[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Sep 16 14:54:02 2024 +0000
+
+    Fix import error in streamlit_app.py
+    
+    Resolved a `ModuleNotFoundError` related to the `yfinance` library in `streamlit_app.py`. This change ensures that the application can successfully import the necessary module for fetching financial data.
+    [skip gpt_engineer]
+
+[33mcommit b16d5cefd38211ef334040211c001c1f1b9a8080[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Sep 16 14:46:11 2024 +0000
+
+    Deploy application to Streamlit
+    
+    Implement deployment configuration for the KaFin2 application on Streamlit, ensuring all necessary components are included for a successful launch.
+    [skip gpt_engineer]
+
+[33mcommit 666d2b7a58086e4db4d55fb3bc00dee53b1dfa0b[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Sep 16 14:42:51 2024 +0000
+
+    Update all project files
+    
+    This commit updates all files in the project to ensure they are current and aligned with the latest standards and dependencies.
+    [skip gpt_engineer]
+
+[33mcommit 1b10a26290ef2dd62d343c5afb8ea713369d576d[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Sep 16 14:42:21 2024 +0000
+
+    Add README implementation
+    
+    Implemented the README file to provide project information, setup instructions, technology stack, and deployment guidelines for the GPT Engineer project.
+    [skip gpt_engineer]
+
+[33mcommit eb7e5e91ad1ead1939d58c1ebbe02b58abdb0028[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Sep 16 14:41:04 2024 +0000
+
+    Add missing features and improvements
+    
+    - Implement user guidance and custom rules for better intent understanding.
+    - Enhance data retrieval efficiency with caching and concurrent processing.
+    - Simplify default settings for a more user-friendly UI.
+    - Include a tutorial for new users.
+    - Strengthen automated testing capabilities.
+    [skip gpt_engineer]
+
+[33mcommit fab7da94218c6c0f888386d12df2b2e81f9f8062[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Sep 16 14:36:57 2024 +0000
+
+    Update README for KaFin2 project
+    
+    Enhanced the README.md to provide a comprehensive overview of the KaFin2 project, including features, architecture, technology stack, usage examples, and quick start instructions for users and developers.
+    [skip gpt_engineer]
+
+[33mcommit 63a12b0bfb13d933d603c1021263849c2dbf0984[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Sep 16 14:36:34 2024 +0000
+
+    Use tech stack vite_react_shadcn
+    [skip gpt_engineer]
