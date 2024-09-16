@@ -27,3 +27,5 @@ dist-ssr
 .env
 token.json"config.json" 
 "*.key" 
+".env" 
+"token.json" 
