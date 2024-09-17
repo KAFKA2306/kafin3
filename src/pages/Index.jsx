@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -28,13 +28,17 @@ const Index = () => {
   const [analysisRequest, setAnalysisRequest] = useState('');
   const [useGoogleDrive, setUseGoogleDrive] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
-  const [dataSource, setDataSource] = useState('ai');
-  const [ticker, setTicker] = useState('');
+  const [dataSource, setDataSource] = useState('yfinance');
+  const [ticker, setTicker] = useState('AAPL');
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['financialData', analysisRequest, useGoogleDrive, dataSource, ticker],
     queryFn: () => fetchFinancialData(analysisRequest, useGoogleDrive, dataSource, ticker),
     enabled: false,
   });
+
+  useEffect(() => {
+    refetch();
+  }, []);
 
   const handleAnalysis = () => {
     refetch();
@@ -58,7 +62,7 @@ const Index = () => {
             <CardDescription>Use natural language, yfinance ticker, or FRED series ID</CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="ai" className="mb-4">
+            <Tabs defaultValue="yfinance" className="mb-4">
               <TabsList>
                 <TabsTrigger value="ai">AI Analysis</TabsTrigger>
                 <TabsTrigger value="yfinance">yfinance</TabsTrigger>
