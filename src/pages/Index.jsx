@@ -10,13 +10,13 @@ import DynamicDashboard from '../components/DynamicDashboard';
 import FinancialDataAnalysis from '../components/FinancialDataAnalysis';
 import Tutorial from '../components/Tutorial';
 
-const fetchFinancialData = async (query, useGoogleDrive) => {
+const fetchFinancialData = async (query, useGoogleDrive, dataSource, ticker) => {
   const response = await fetch('http://localhost:8000/analyze', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ query, use_google_drive: useGoogleDrive }),
+    body: JSON.stringify({ query, use_google_drive: useGoogleDrive, data_source: dataSource, ticker }),
   });
   if (!response.ok) {
     throw new Error('Network response was not ok');
@@ -28,9 +28,11 @@ const Index = () => {
   const [analysisRequest, setAnalysisRequest] = useState('');
   const [useGoogleDrive, setUseGoogleDrive] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [dataSource, setDataSource] = useState('ai');
+  const [ticker, setTicker] = useState('');
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['financialData', analysisRequest, useGoogleDrive],
-    queryFn: () => fetchFinancialData(analysisRequest, useGoogleDrive),
+    queryKey: ['financialData', analysisRequest, useGoogleDrive, dataSource, ticker],
+    queryFn: () => fetchFinancialData(analysisRequest, useGoogleDrive, dataSource, ticker),
     enabled: false,
   });
 
@@ -46,34 +48,68 @@ const Index = () => {
     <div className="min-h-screen bg-gray-100 p-8">
       <header className="mb-8">
         <h1 className="text-4xl font-bold text-center mb-2">KaFin2: AI-Powered Finance Dashboard 🤖📊</h1>
-        <p className="text-xl text-center text-gray-600">Analyze and visualize financial data with natural language commands</p>
+        <p className="text-xl text-center text-gray-600">Analyze and visualize financial data with natural language commands or direct inputs</p>
       </header>
 
       <main className="max-w-6xl mx-auto">
         <Card className="mb-8">
           <CardHeader>
             <CardTitle>Enter Your Financial Analysis Request</CardTitle>
-            <CardDescription>Use natural language to describe the analysis you want to perform</CardDescription>
+            <CardDescription>Use natural language, yfinance ticker, or FRED series ID</CardDescription>
           </CardHeader>
           <CardContent>
+            <Tabs defaultValue="ai" className="mb-4">
+              <TabsList>
+                <TabsTrigger value="ai">AI Analysis</TabsTrigger>
+                <TabsTrigger value="yfinance">yfinance</TabsTrigger>
+                <TabsTrigger value="fred">FRED</TabsTrigger>
+              </TabsList>
+              <TabsContent value="ai">
+                <Input 
+                  placeholder="E.g., Compare Toyota and Honda stock prices for the past 3 months" 
+                  className="mb-4"
+                  value={analysisRequest}
+                  onChange={(e) => {
+                    setAnalysisRequest(e.target.value);
+                    setDataSource('ai');
+                  }}
+                />
+              </TabsContent>
+              <TabsContent value="yfinance">
+                <Input 
+                  placeholder="Enter yfinance ticker (e.g., AAPL, GOOGL)" 
+                  className="mb-4"
+                  value={ticker}
+                  onChange={(e) => {
+                    setTicker(e.target.value);
+                    setDataSource('yfinance');
+                  }}
+                />
+              </TabsContent>
+              <TabsContent value="fred">
+                <Input 
+                  placeholder="Enter FRED series ID (e.g., GDP, UNRATE)" 
+                  className="mb-4"
+                  value={ticker}
+                  onChange={(e) => {
+                    setTicker(e.target.value);
+                    setDataSource('fred');
+                  }}
+                />
+              </TabsContent>
+            </Tabs>
             <div className="flex space-x-2 mb-4">
-              <Input 
-                placeholder="E.g., Compare Toyota and Honda stock prices for the past 3 months" 
-                className="flex-grow"
-                value={analysisRequest}
-                onChange={(e) => setAnalysisRequest(e.target.value)}
-              />
               <Button onClick={handleAnalysis} disabled={isLoading}>
                 {isLoading ? 'Analyzing...' : 'Analyze'}
               </Button>
-            </div>
-            <div className="flex items-center space-x-2 mb-4">
-              <Switch
-                id="google-drive"
-                checked={useGoogleDrive}
-                onCheckedChange={setUseGoogleDrive}
-              />
-              <label htmlFor="google-drive">Save results to Google Drive</label>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="google-drive"
+                  checked={useGoogleDrive}
+                  onCheckedChange={setUseGoogleDrive}
+                />
+                <label htmlFor="google-drive">Save results to Google Drive</label>
+              </div>
             </div>
             <Button onClick={toggleTutorial} variant="outline">
               {showTutorial ? 'Hide Tutorial' : 'Show Tutorial'}
