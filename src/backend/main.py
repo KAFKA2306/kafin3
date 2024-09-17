@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 from datetime import datetime, timedelta
 import joblib
 from sklearn.ensemble import RandomForestRegressor
+from google_auth_oauthlib.flow import InstalledAppFlow
 
 # Load environment variables
 load_dotenv()
@@ -43,7 +44,9 @@ if not creds or not creds.valid:
         creds.refresh(Request())
     else:
         flow = InstalledAppFlow.from_client_secrets_file(
-            'credentials.json', SCOPES)
+            "C:\secret\client_secret_659942893881-jtcrs4ckeip72u30bdbau2hfcp4ktfci.apps.googleusercontent.com.json",  # 適切なパスに変更
+            scopes=['https://www.googleapis.com/auth/drive.file']
+        )
         creds = flow.run_local_server(port=0)
     with open('token.json', 'w') as token:
         token.write(creds.to_json())
