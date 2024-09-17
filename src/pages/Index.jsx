@@ -3,15 +3,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
 import AIAnalysis from '../components/AIAnalysis';
 import DynamicDashboard from '../components/DynamicDashboard';
 import FinancialDataAnalysis from '../components/FinancialDataAnalysis';
 
 const fetchFinancialData = async (query) => {
-  // This would be replaced with actual API call to your backend
-  const response = await fetch(`/api/financial-data?query=${encodeURIComponent(query)}`);
+  const response = await fetch('http://localhost:8000/analyze', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ query }),
+  });
   if (!response.ok) {
     throw new Error('Network response was not ok');
   }
@@ -23,7 +27,7 @@ const Index = () => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['financialData', analysisRequest],
     queryFn: () => fetchFinancialData(analysisRequest),
-    enabled: false, // Don't run query on component mount
+    enabled: false,
   });
 
   const handleAnalysis = () => {
@@ -84,41 +88,10 @@ const Index = () => {
             </TabsContent>
           </Tabs>
         )}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Dashboards</CardTitle>
-              <CardDescription>Quick access to your latest analyses</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="list-disc pl-5">
-                <li>GAFA Stock Performance YTD</li>
-                <li>USD/JPY vs Nikkei 225 Correlation</li>
-                <li>FED Balance Sheet vs 10Y Treasury Yield</li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Start</CardTitle>
-              <CardDescription>Get started with KaFin2</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ol className="list-decimal pl-5 space-y-2">
-                <li>Enter your financial analysis request in natural language</li>
-                <li>Review the AI-generated dashboard</li>
-                <li>Explore different visualizations and data points</li>
-                <li>Save or share your analysis results</li>
-              </ol>
-            </CardContent>
-          </Card>
-        </div>
       </main>
 
       <footer className="mt-12 text-center text-gray-500">
-        <p>Powered by OpenAI GPT-4, Streamlit, and various financial data APIs</p>
+        <p>Powered by OpenAI GPT-4, FastAPI, and various financial data APIs</p>
         <p>© 2024 KaFin2 Project | <a href="https://github.com/yourusername/kafin2" className="underline">GitHub</a></p>
       </footer>
     </div>

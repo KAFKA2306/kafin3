@@ -15,23 +15,38 @@ from datetime import datetime, timedelta
 import joblib
 from sklearn.ensemble import RandomForestRegressor
 
+# Load environment variables
 load_dotenv()
 
 app = FastAPI()
 
+# CORS設定
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8501"],  # Streamlitのデフォルトポート
+    allow_origins=["http://localhost:3000"],  # Reactアプリのオリジン
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# API keys
 openai.api_key = os.getenv("OPENAI_API_KEY")
 fred = Fred(api_key=os.getenv("FRED_API_KEY"))
 
+# Google Drive API setup
 SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
-creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+creds = None
+if os.path.exists('token.json'):
+    creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+if not creds or not creds.valid:
+    if creds and creds.expired and creds.refresh_token:
+        creds.refresh(Request())
+    else:
+        flow = InstalledAppFlow.from_client_secrets_file(
+            'credentials.json', SCOPES)
+        creds = flow.run_local_server(port=0)
+    with open('token.json', 'w') as token:
+        token.write(creds.to_json())
 drive_service = build('drive', 'v3', credentials=creds)
 
 class AnalysisRequest(BaseModel):
