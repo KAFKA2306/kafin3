@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import AIAnalysis from '../components/AIAnalysis';
 import DynamicDashboard from '../components/DynamicDashboard';
 import FinancialDataAnalysis from '../components/FinancialDataAnalysis';
+import Tutorial from '../components/Tutorial';
 
 const fetchFinancialData = async (query, useGoogleDrive) => {
   const response = await fetch('http://localhost:8000/analyze', {
@@ -26,6 +27,7 @@ const fetchFinancialData = async (query, useGoogleDrive) => {
 const Index = () => {
   const [analysisRequest, setAnalysisRequest] = useState('');
   const [useGoogleDrive, setUseGoogleDrive] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['financialData', analysisRequest, useGoogleDrive],
     queryFn: () => fetchFinancialData(analysisRequest, useGoogleDrive),
@@ -34,6 +36,10 @@ const Index = () => {
 
   const handleAnalysis = () => {
     refetch();
+  };
+
+  const toggleTutorial = () => {
+    setShowTutorial(!showTutorial);
   };
 
   return (
@@ -61,7 +67,7 @@ const Index = () => {
                 {isLoading ? 'Analyzing...' : 'Analyze'}
               </Button>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 mb-4">
               <Switch
                 id="google-drive"
                 checked={useGoogleDrive}
@@ -69,8 +75,13 @@ const Index = () => {
               />
               <label htmlFor="google-drive">Save results to Google Drive</label>
             </div>
+            <Button onClick={toggleTutorial} variant="outline">
+              {showTutorial ? 'Hide Tutorial' : 'Show Tutorial'}
+            </Button>
           </CardContent>
         </Card>
+
+        {showTutorial && <Tutorial />}
 
         {error && (
           <Card className="mb-8 bg-red-50">
