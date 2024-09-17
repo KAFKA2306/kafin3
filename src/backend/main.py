@@ -32,8 +32,15 @@ app.add_middleware(
 )
 
 # API keys
-fred = Fred(api_key=os.getenv("FRED_API_KEY"))
-openai.api_key = os.getenv("OPENAI_API_KEY")
+try:
+    fred = Fred(api_key=os.getenv("FRED_API_KEY"))
+except Exception as e:
+    print(f"Error initializing FRED API: {str(e)}")
+
+try:
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+except Exception as e:
+    print(f"Error setting OpenAI API key: {str(e)}")
 
 class AnalysisRequest(BaseModel):
     query: str
