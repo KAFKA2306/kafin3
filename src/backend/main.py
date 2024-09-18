@@ -9,10 +9,6 @@ import numpy as np
 from fredapi import Fred
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
-from google.oauth2.credentials import Credentials
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseUpload
-import io
 
 # Load environment variables
 load_dotenv()
@@ -34,7 +30,6 @@ fred = Fred(api_key=os.getenv("FRED_API_KEY"))
 class AnalysisRequest(BaseModel):
     query: str
     days: Optional[int] = 365
-    use_google_drive: Optional[bool] = False
 
 class FinancialData(BaseModel):
     dates: List[str]
@@ -44,7 +39,6 @@ class FinancialData(BaseModel):
 class AnalysisResponse(BaseModel):
     chartData: List[dict]
     statistics: dict
-    google_drive_link: Optional[str] = None
 
 @app.post("/analyze", response_model=AnalysisResponse)
 async def analyze_financial_data(request: AnalysisRequest):
@@ -62,14 +56,9 @@ async def analyze_financial_data(request: AnalysisRequest):
         analysis = perform_financial_analysis(data)
         chart_data = [{"date": date, "value": value} for date, value in zip(data.dates, data.values)]
 
-        google_drive_link = None
-        if request.use_google_drive:
-            google_drive_link = save_to_google_drive(data)
-
         return AnalysisResponse(
             chartData=chart_data,
-            statistics=analysis,
-            google_drive_link=google_drive_link
+            statistics=analysis
         )
 
     except Exception as e:
@@ -108,21 +97,6 @@ def perform_financial_analysis(data: FinancialData) -> dict:
     }
     
     return analysis
-
-def save_to_google_drive(data: FinancialData) -> Optional[str]:
-    try:
-        creds = Credentials.from_authorized_user_file('token.json', ['https://www.googleapis.com/auth/drive.file'])
-        service = build('drive', 'v3', credentials=creds)
-
-        file_metadata = {'name': f'{data.symbol}_data.csv'}
-        media = MediaIoBaseUpload(io.StringIO('\n'.join([f"{date},{value}" for date, value in zip(data.dates, data.values)])),
-                                  mimetype='text/csv',
-                                  resumable=True)
-        file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
-        return f"https://drive.google.com/file/d/{file.get('id')}/view"
-    except Exception as e:
-        print(f"Error saving to Google Drive: {str(e)}")
-        return None
 
 if __name__ == "__main__":
     import uvicorn
