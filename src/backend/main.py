@@ -2,19 +2,20 @@ import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 import yfinance as yf
 import pandas as pd
 import numpy as np
 from fredapi import Fred
-from google.oauth2.credentials import Credentials
-from googleapiclient.discovery import build
-import openai
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
-import joblib
-from sklearn.ensemble import RandomForestRegressor
-from google_auth_oauthlib.flow import InstalledAppFlow
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseUpload
+import io
+import openai
+from concurrent.futures import ThreadPoolExecutor
+from functools import lru_cache
 
 # Load environment variables
 load_dotenv()
@@ -24,154 +25,133 @@ app = FastAPI()
 # CORS設定
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Reactアプリのオリジン
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # API keys
-openai.api_key = os.getenv("OPENAI_API_KEY")
 fred = Fred(api_key=os.getenv("FRED_API_KEY"))
-
-# Google Drive API setup
-SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
-creds = None
-if os.path.exists('token.json'):
-    creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-if not creds or not creds.valid:
-    if creds and creds.expired and creds.refresh_token:
-        creds.refresh(Request())
-    else:
-        flow = InstalledAppFlow.from_client_secrets_file(
-            "C:\secret\client_secret_659942893881-jtcrs4ckeip72u30bdbau2hfcp4ktfci.apps.googleusercontent.com.json",  # 適切なパスに変更
-            scopes=['https://www.googleapis.com/auth/drive.file']
-        )
-        creds = flow.run_local_server(port=0)
-    with open('token.json', 'w') as token:
-        token.write(creds.to_json())
-drive_service = build('drive', 'v3', credentials=creds)
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 class AnalysisRequest(BaseModel):
     query: str
+    days: Optional[int] = 365
+    use_google_drive: Optional[bool] = False
 
 class FinancialData(BaseModel):
-    date: List[str]
+    dates: List[str]
     values: List[float]
     symbol: str
 
 class AnalysisResponse(BaseModel):
     chartData: List[dict]
+    statistics: dict
     aiAnalysis: str
-    financialAnalysis: dict
+    google_drive_link: Optional[str] = None
 
-@app.post("/analyze", response_model=AnalysisResponse)
-async def analyze_financial_data(request: AnalysisRequest):
-    try:
-        gpt_response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "You are a financial analysis assistant. Interpret the user's query and provide instructions for data retrieval and analysis."},
-                {"role": "user", "content": request.query}
-            ]
-        )
-        interpretation = gpt_response.choices[0].message.content
-
-        if "stock" in interpretation.lower():
-            symbol = interpretation.split()[-1]
-            data = get_stock_data(symbol)
-        elif "fred" in interpretation.lower():
-            series_id = interpretation.split()[-1]
-            data = get_fred_data(series_id)
-        else:
-            raise ValueError("Unable to interpret the query")
-
-        analysis = perform_financial_analysis(data)
-        ai_analysis = generate_ai_analysis(data, analysis)
-        chart_data = [{"date": date, "value": value} for date, value in zip(data.date, data.values)]
-
-        return AnalysisResponse(
-            chartData=chart_data,
-            aiAnalysis=ai_analysis,
-            financialAnalysis=analysis
-        )
-
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-def get_stock_data(symbol: str) -> FinancialData:
+@lru_cache(maxsize=100)
+def get_stock_data(symbol: str, days: int) -> FinancialData:
     end_date = datetime.now()
-    start_date = end_date - timedelta(days=365)
+    start_date = end_date - timedelta(days=days)
     data = yf.download(symbol, start=start_date, end=end_date)
     return FinancialData(
-        date=data.index.strftime('%Y-%m-%d').tolist(),
+        dates=data.index.strftime('%Y-%m-%d').tolist(),
         values=data['Close'].tolist(),
         symbol=symbol
     )
 
-def get_fred_data(series_id: str) -> FinancialData:
-    data = fred.get_series(series_id)
+@lru_cache(maxsize=100)
+def get_fred_data(series_id: str, days: int) -> FinancialData:
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=days)
+    data = fred.get_series(series_id, start_date, end_date)
     return FinancialData(
-        date=data.index.strftime('%Y-%m-%d').tolist(),
+        dates=data.index.strftime('%Y-%m-%d').tolist(),
         values=data.tolist(),
         symbol=series_id
     )
 
 def perform_financial_analysis(data: FinancialData) -> dict:
-    df = pd.DataFrame({"date": data.date, "value": data.values})
-    df['date'] = pd.to_datetime(df['date'])
-    df.set_index('date', inplace=True)
+    values = np.array(data.values)
     
     analysis = {
-        "mean": np.mean(data.values),
-        "std": np.std(data.values),
-        "min": np.min(data.values),
-        "max": np.max(data.values),
-        "last_value": data.values[-1],
-        "pct_change": (data.values[-1] / data.values[0] - 1) * 100
+        "mean": np.mean(values),
+        "std": np.std(values),
+        "min": np.min(values),
+        "max": np.max(values),
+        "last_value": values[-1],
+        "pct_change": (values[-1] / values[0] - 1) * 100 if len(values) > 1 else 0
     }
-    
-    model = RandomForestRegressor(n_estimators=100, random_state=42)
-    df['lag_1'] = df['value'].shift(1)
-    df['lag_7'] = df['value'].shift(7)
-    df.dropna(inplace=True)
-    
-    X = df[['lag_1', 'lag_7']]
-    y = df['value']
-    
-    model.fit(X, y)
-    
-    last_known = df.iloc[-1]
-    forecast_input = np.array([[last_known['value'], last_known['lag_7']]])
-    forecast = model.predict(forecast_input)[0]
-    
-    analysis["forecast_next_day"] = forecast
     
     return analysis
 
-def generate_ai_analysis(data: FinancialData, analysis: dict) -> str:
-    prompt = f"""
-    Analyze the following financial data and provide insights:
-    Symbol: {data.symbol}
-    Time period: {data.date[0]} to {data.date[-1]}
-    Last value: {analysis['last_value']}
-    Percent change: {analysis['pct_change']:.2f}%
-    Mean: {analysis['mean']:.2f}
-    Standard deviation: {analysis['std']:.2f}
-    Forecast for next day: {analysis['forecast_next_day']:.2f}
-    
-    Please provide a concise analysis of this data, including potential factors influencing the trends and what it might mean for investors.
-    """
-    
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You are a financial analyst providing insights on market data."},
-            {"role": "user", "content": prompt}
-        ]
+def save_to_google_drive(data: FinancialData) -> Optional[str]:
+    try:
+        creds = Credentials.from_authorized_user_file('token.json', ['https://www.googleapis.com/auth/drive.file'])
+        service = build('drive', 'v3', credentials=creds)
+
+        file_metadata = {'name': f'{data.symbol}_data.csv'}
+        media = MediaIoBaseUpload(io.StringIO('\n'.join([f"{date},{value}" for date, value in zip(data.dates, data.values)])),
+                                  mimetype='text/csv',
+                                  resumable=True)
+        file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+        return f"https://drive.google.com/file/d/{file.get('id')}/view"
+    except Exception as e:
+        print(f"Error saving to Google Drive: {str(e)}")
+        return None
+
+def analyze_with_ai(query: str, data: FinancialData) -> str:
+    prompt = f"Analyze the following financial data for {data.symbol}:\n\n"
+    prompt += f"Dates: {data.dates[:5]}...{data.dates[-5:]}\n"
+    prompt += f"Values: {data.values[:5]}...{data.values[-5:]}\n\n"
+    prompt += f"User query: {query}\n"
+    prompt += "Provide a concise analysis based on the data and the user's query."
+
+    response = openai.Completion.create(
+        engine="text-davinci-002",
+        prompt=prompt,
+        max_tokens=150
     )
-    
-    return response.choices[0].message.content
+
+    return response.choices[0].text.strip()
+
+@app.post("/analyze", response_model=AnalysisResponse)
+async def analyze_financial_data(request: AnalysisRequest):
+    try:
+        # Simple parsing of the query
+        if "stock" in request.query.lower():
+            symbol = request.query.split()[-1].upper()
+            data = get_stock_data(symbol, request.days)
+        elif "fred" in request.query.lower():
+            series_id = request.query.split()[-1]
+            data = get_fred_data(series_id, request.days)
+        else:
+            raise ValueError("Unable to interpret the query")
+
+        with ThreadPoolExecutor() as executor:
+            analysis_future = executor.submit(perform_financial_analysis, data)
+            ai_analysis_future = executor.submit(analyze_with_ai, request.query, data)
+            
+            analysis = analysis_future.result()
+            ai_analysis = ai_analysis_future.result()
+
+        chart_data = [{"date": date, "value": value} for date, value in zip(data.dates, data.values)]
+
+        google_drive_link = None
+        if request.use_google_drive:
+            google_drive_link = save_to_google_drive(data)
+
+        return AnalysisResponse(
+            chartData=chart_data,
+            statistics=analysis,
+            aiAnalysis=ai_analysis,
+            google_drive_link=google_drive_link
+        )
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn
