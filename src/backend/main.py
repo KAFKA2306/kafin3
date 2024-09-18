@@ -12,10 +12,10 @@ from datetime import datetime, timedelta
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
+from google.auth.transport.requests import Request
+from google.auth.exceptions import RefreshError
 import io
 import openai
-from concurrent.futures import ThreadPoolExecutor
-from functools import lru_cache
 
 # Load environment variables
 load_dotenv()
@@ -51,7 +51,6 @@ class AnalysisResponse(BaseModel):
     aiAnalysis: str
     google_drive_link: Optional[str] = None
 
-@lru_cache(maxsize=100)
 def get_stock_data(symbol: str, days: int) -> FinancialData:
     end_date = datetime.now()
     start_date = end_date - timedelta(days=days)
@@ -62,7 +61,6 @@ def get_stock_data(symbol: str, days: int) -> FinancialData:
         symbol=symbol
     )
 
-@lru_cache(maxsize=100)
 def get_fred_data(series_id: str, days: int) -> FinancialData:
     end_date = datetime.now()
     start_date = end_date - timedelta(days=days)
@@ -77,30 +75,47 @@ def perform_financial_analysis(data: FinancialData) -> dict:
     values = np.array(data.values)
     
     analysis = {
-        "mean": np.mean(values),
-        "std": np.std(values),
-        "min": np.min(values),
-        "max": np.max(values),
-        "last_value": values[-1],
-        "pct_change": (values[-1] / values[0] - 1) * 100 if len(values) > 1 else 0
+        "mean": float(np.mean(values)),
+        "std": float(np.std(values)),
+        "min": float(np.min(values)),
+        "max": float(np.max(values)),
+        "last_value": float(values[-1]),
+        "pct_change": float((values[-1] / values[0] - 1) * 100 if len(values) > 1 else 0)
     }
     
     return analysis
 
 def save_to_google_drive(data: FinancialData) -> Optional[str]:
-    try:
+    creds = None
+    if os.path.exists('token.json'):
         creds = Credentials.from_authorized_user_file('token.json', ['https://www.googleapis.com/auth/drive.file'])
+    
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            try:
+                creds.refresh(Request())
+            except RefreshError:
+                os.remove('token.json')
+                raise HTTPException(status_code=401, detail="Google Drive authentication failed. Please re-authenticate.")
+        else:
+            raise HTTPException(status_code=401, detail="Google Drive authentication required. Please run the authentication script.")
+
+    try:
         service = build('drive', 'v3', credentials=creds)
 
         file_metadata = {'name': f'{data.symbol}_data.csv'}
-        media = MediaIoBaseUpload(io.StringIO('\n'.join([f"{date},{value}" for date, value in zip(data.dates, data.values)])),
-                                  mimetype='text/csv',
-                                  resumable=True)
+        csv_content = '\n'.join([f"{date},{value}" for date, value in zip(data.dates, data.values)])
+        media = MediaIoBaseUpload(io.StringIO(csv_content), mimetype='text/csv', resumable=True)
+        
         file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+        
+        # Save the updated credentials
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
+        
         return f"https://drive.google.com/file/d/{file.get('id')}/view"
     except Exception as e:
-        print(f"Error saving to Google Drive: {str(e)}")
-        return None
+        raise HTTPException(status_code=500, detail=f"Error saving to Google Drive: {str(e)}")
 
 def analyze_with_ai(query: str, data: FinancialData) -> str:
     prompt = f"Analyze the following financial data for {data.symbol}:\n\n"
@@ -109,13 +124,15 @@ def analyze_with_ai(query: str, data: FinancialData) -> str:
     prompt += f"User query: {query}\n"
     prompt += "Provide a concise analysis based on the data and the user's query."
 
-    response = openai.Completion.create(
-        engine="text-davinci-002",
-        prompt=prompt,
-        max_tokens=150
-    )
-
-    return response.choices[0].text.strip()
+    try:
+        response = openai.Completion.create(
+            engine="text-davinci-002",
+            prompt=prompt,
+            max_tokens=150
+        )
+        return response.choices[0].text.strip()
+    except Exception as e:
+        return f"AI analysis failed: {str(e)}"
 
 @app.post("/analyze", response_model=AnalysisResponse)
 async def analyze_financial_data(request: AnalysisRequest):
@@ -130,12 +147,8 @@ async def analyze_financial_data(request: AnalysisRequest):
         else:
             raise ValueError("Unable to interpret the query")
 
-        with ThreadPoolExecutor() as executor:
-            analysis_future = executor.submit(perform_financial_analysis, data)
-            ai_analysis_future = executor.submit(analyze_with_ai, request.query, data)
-            
-            analysis = analysis_future.result()
-            ai_analysis = ai_analysis_future.result()
+        analysis = perform_financial_analysis(data)
+        ai_analysis = analyze_with_ai(request.query, data)
 
         chart_data = [{"date": date, "value": value} for date, value in zip(data.dates, data.values)]
 
