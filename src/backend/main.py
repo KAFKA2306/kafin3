@@ -39,6 +39,8 @@ class AnalysisRequest(BaseModel):
     query: str
     days: Optional[int] = 365
     use_google_drive: Optional[bool] = False
+    data_source: str
+    ticker: str
 
 class FinancialData(BaseModel):
     dates: List[str]
@@ -55,6 +57,8 @@ def get_stock_data(symbol: str, days: int) -> FinancialData:
     end_date = datetime.now()
     start_date = end_date - timedelta(days=days)
     data = yf.download(symbol, start=start_date, end=end_date)
+    if data.empty:
+        raise ValueError(f"No data available for ticker {symbol}")
     return FinancialData(
         dates=data.index.strftime('%Y-%m-%d').tolist(),
         values=data['Close'].tolist(),
@@ -65,6 +69,8 @@ def get_fred_data(series_id: str, days: int) -> FinancialData:
     end_date = datetime.now()
     start_date = end_date - timedelta(days=days)
     data = fred.get_series(series_id, start_date, end_date)
+    if data.empty:
+        raise ValueError(f"No data available for FRED series {series_id}")
     return FinancialData(
         dates=data.index.strftime('%Y-%m-%d').tolist(),
         values=data.tolist(),
@@ -137,15 +143,12 @@ def analyze_with_ai(query: str, data: FinancialData) -> str:
 @app.post("/analyze", response_model=AnalysisResponse)
 async def analyze_financial_data(request: AnalysisRequest):
     try:
-        # Simple parsing of the query
-        if "stock" in request.query.lower():
-            symbol = request.query.split()[-1].upper()
-            data = get_stock_data(symbol, request.days)
-        elif "fred" in request.query.lower():
-            series_id = request.query.split()[-1]
-            data = get_fred_data(series_id, request.days)
+        if request.data_source == "yfinance":
+            data = get_stock_data(request.ticker, request.days)
+        elif request.data_source == "fred":
+            data = get_fred_data(request.ticker, request.days)
         else:
-            raise ValueError("Unable to interpret the query")
+            raise ValueError("Invalid data source specified")
 
         analysis = perform_financial_analysis(data)
         ai_analysis = analyze_with_ai(request.query, data)

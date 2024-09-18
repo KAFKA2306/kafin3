@@ -19,7 +19,8 @@ const fetchFinancialData = async (query, useGoogleDrive, dataSource, ticker) => 
     body: JSON.stringify({ query, use_google_drive: useGoogleDrive, data_source: dataSource, ticker }),
   });
   if (!response.ok) {
-    throw new Error('Network response was not ok');
+    const errorData = await response.json();
+    throw new Error(errorData.detail || 'An error occurred while fetching data');
   }
   return response.json();
 };
@@ -62,7 +63,7 @@ const Index = () => {
             <CardDescription>Use natural language, yfinance ticker, or FRED series ID</CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="yfinance" className="mb-4">
+            <Tabs defaultValue="yfinance" className="mb-4" onValueChange={(value) => setDataSource(value)}>
               <TabsList>
                 <TabsTrigger value="ai">AI Analysis</TabsTrigger>
                 <TabsTrigger value="yfinance">yfinance</TabsTrigger>
@@ -73,10 +74,7 @@ const Index = () => {
                   placeholder="E.g., Compare Toyota and Honda stock prices for the past 3 months" 
                   className="mb-4"
                   value={analysisRequest}
-                  onChange={(e) => {
-                    setAnalysisRequest(e.target.value);
-                    setDataSource('ai');
-                  }}
+                  onChange={(e) => setAnalysisRequest(e.target.value)}
                 />
               </TabsContent>
               <TabsContent value="yfinance">
@@ -84,10 +82,7 @@ const Index = () => {
                   placeholder="Enter yfinance ticker (e.g., AAPL, GOOGL)" 
                   className="mb-4"
                   value={ticker}
-                  onChange={(e) => {
-                    setTicker(e.target.value);
-                    setDataSource('yfinance');
-                  }}
+                  onChange={(e) => setTicker(e.target.value)}
                 />
               </TabsContent>
               <TabsContent value="fred">
@@ -95,10 +90,7 @@ const Index = () => {
                   placeholder="Enter FRED series ID (e.g., GDP, UNRATE)" 
                   className="mb-4"
                   value={ticker}
-                  onChange={(e) => {
-                    setTicker(e.target.value);
-                    setDataSource('fred');
-                  }}
+                  onChange={(e) => setTicker(e.target.value)}
                 />
               </TabsContent>
             </Tabs>
