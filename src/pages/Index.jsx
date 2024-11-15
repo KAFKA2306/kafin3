@@ -5,30 +5,24 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { useQuery } from '@tanstack/react-query';
-import { toast } from 'sonner';
 import AIAnalysis from '../components/AIAnalysis';
 import DynamicDashboard from '../components/DynamicDashboard';
 import FinancialDataAnalysis from '../components/FinancialDataAnalysis';
 import Tutorial from '../components/Tutorial';
 
 const fetchFinancialData = async (query, useGoogleDrive, dataSource, ticker) => {
-  try {
-    const response = await fetch('http://localhost:8000/analyze', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ query, use_google_drive: useGoogleDrive, data_source: dataSource, ticker }),
-    });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || 'An error occurred while fetching data');
-    }
-    return response.json();
-  } catch (error) {
-    console.error('Fetch error:', error);
-    throw error;
+  const response = await fetch('http://localhost:8000/analyze', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ query, use_google_drive: useGoogleDrive, data_source: dataSource, ticker }),
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || 'An error occurred while fetching data');
   }
+  return response.json();
 };
 
 const Index = () => {
@@ -37,32 +31,17 @@ const Index = () => {
   const [showTutorial, setShowTutorial] = useState(false);
   const [dataSource, setDataSource] = useState('yfinance');
   const [ticker, setTicker] = useState('AAPL');
-
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['financialData', analysisRequest, useGoogleDrive, dataSource, ticker],
     queryFn: () => fetchFinancialData(analysisRequest, useGoogleDrive, dataSource, ticker),
     enabled: false,
-    retry: 2,
-    onError: (error) => {
-      toast.error(`Error: ${error.message}`);
-    },
   });
 
   useEffect(() => {
-    if (error) {
-      toast.error(`Error: ${error.message}`);
-    }
-  }, [error]);
+    refetch();
+  }, []);
 
   const handleAnalysis = () => {
-    if (!analysisRequest && dataSource === 'ai') {
-      toast.error('Please enter an analysis request');
-      return;
-    }
-    if (!ticker && (dataSource === 'yfinance' || dataSource === 'fred')) {
-      toast.error('Please enter a ticker or series ID');
-      return;
-    }
     refetch();
   };
 
