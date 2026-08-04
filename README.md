@@ -1,95 +1,71 @@
-# KaFin2: AI-Powered Finance Dashboard
+# kafin3 — 2024年のAI金融分析prototype
 
-KaFin2 is an advanced financial data analysis dashboard that leverages AI to provide insightful analysis of stock market data and economic indicators. This project combines the power of FastAPI, React, and various financial APIs to deliver a user-friendly interface for financial analysis.
+> **状態: legacy / 動作未確認**  
+> FastAPIを使った金融データ取得・要約の試作コードは存在しますが、現在のdefault branchをそのままセットアップして利用できる状態ではありません。稼働中のサービス、検証済みの投資分析基盤、現行OpenAI API対応製品ではありません。
 
-## Features
+## 目的
 
-- Real-time stock data analysis using yfinance
-- Economic data retrieval from FRED (Federal Reserve Economic Data)
-- AI-powered insights using OpenAI's GPT-4
-- Interactive charts and visualizations
-- Natural language query interface for financial analysis
-- Google Drive integration for data storage and retrieval
+株価またはFRED系列を取得し、基本統計とLLMによる短い説明を返すAPIを試作したリポジトリです。Google DriveへのCSV保存も試行しています。
 
-## Prerequisites
+## 現在確認できる実装
 
-- Python 3.8+
-- Node.js 14+
-- npm or yarn
-- OpenAI API key
-- FRED API key
-- Google Cloud Platform account with Drive API enabled
+`src/backend/main.py`には次の処理があります。
 
-## Setup
+- FastAPIの`/analyze` endpoint
+- yfinanceによる株価取得
+- FRED APIによる経済系列取得
+- 平均、標準偏差、最小値、最大値、期間騰落率の計算
+- OpenAI APIを使った文章生成の試行
+- Google DriveへのCSV uploadの試行
 
-1. Clone the repository:
-   ```
-   git clone https://github.com/yourusername/kafin2.git
-   cd kafin2
-   ```
+依存候補はrootの`requirements.txt`に記載されています。
 
-2. Set up the backend:
-   ```
-   cd src/backend
-   python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-   pip install -r requirements.txt
-   ```
+## そのまま利用できない理由
 
-3. Set up environment variables:
-   Create a `.env` file in the `src/backend` directory with the following content:
-   ```
-   OPENAI_API_KEY=your_openai_api_key
-   FRED_API_KEY=your_fred_api_key
-   ```
+| 項目 | 現在の状態 |
+|---|---|
+| OpenAI | `text-davinci-002`と旧Completion APIを使用しており、現行構成への移行が必要 |
+| setup | 旧READMEが案内した`src/backend/requirements.txt`は存在しない |
+| frontend | 旧READMEが案内した`frontend/`と`package.json`を確認できない |
+| Google Drive | 実行directoryの`token.json`に依存し、credential管理契約が未整備 |
+| version固定 | lock fileなし。依存versionの再現性なし |
+| test | 自動testを確認できない |
+| CI/CD | 検証・deployment workflowを確認できない |
+| 公開環境 | 稼働中deploymentのcommit・URL対応を確認できない |
 
-4. Set up Google Drive API:
-   - Follow the [Google Drive API Python Quickstart](https://developers.google.com/drive/api/quickstart/python) to create credentials.
-   - Save the `credentials.json` file in the `src/backend` directory.
-   - Run the `generate_token.py` script to create `token.json`:
-     ```
-     python generate_token.py
-     ```
+したがって、旧READMEにあった「GPT-4を使う高度なdashboard」「React frontend」「利用可能な自然言語分析」などの現在形の説明は撤回します。
 
-5. Set up the frontend:
-   ```
-   cd ../../frontend
-   npm install  # or yarn install
-   ```
+## セキュリティ
 
-## Running the Application
+- `.env`、`credentials.json`、`token.json`をcommitしない
+- Google Drive tokenを共有環境で使い回さない
+- API error本文へcredentialや内部pathを含めない
+- 任意ticker・任意FRED seriesの入力制限とrate limitを設計する
+- CORSは実際のfrontend originだけを許可する
 
-1. Start the backend server:
-   ```
-   cd src/backend
-   uvicorn main:app --reload
-   ```
+## 金融データ上の制約
 
-2. In a new terminal, start the frontend development server:
-   ```
-   cd frontend
-   npm start  # or yarn start
-   ```
+現在の実装は、価格・経済系列の定義や品質を十分に管理していません。
 
-3. Open your browser and navigate to `http://localhost:3000` to use the application.
+- yfinanceの`Close`が調整済み価格かを契約化していない
+- 配当、分割、通貨、timezoneを結果へ保存していない
+- FRED series ID、単位、季節調整、改訂状態を結果へ保存していない
+- LLM生成文に引用・根拠chunk・棄却規則がない
+- 出力は投資助言、売買推奨、将来予測ではない
 
-## Usage
+## 再開する場合
 
-1. Enter your financial analysis query in natural language (e.g., "Compare Apple and Microsoft stock prices for the last 6 months").
-2. View the generated charts, AI analysis, and financial data on the dashboard.
-3. Explore different tabs for more detailed information and insights.
+1. 現行OpenAI Responses API等へ移行するか、LLM機能を削除する
+2. backendとfrontendの正準構成を決める
+3. `pyproject.toml`またはlock付き依存管理へ移行する
+4. credentialを環境変数・secret storeへ分離する
+5. data provenance、as-of、単位、通貨をschema化する
+6. unit test、API contract test、external API mockを追加する
+7. deployment URLとcommit SHAを対応付ける
 
-## Contributing
+## 関連する監査
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+- README監査Issue: https://github.com/KAFKA2306/kafin3/issues/3
+- 全repository README監査: https://github.com/KAFKA2306/com/issues/3
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgements
-
-- OpenAI for providing the GPT-4 API
-- Federal Reserve Bank of St. Louis for the FRED API
-- Yahoo Finance for real-time stock data
-- All other open-source libraries and tools used in this project
+**README監査日:** 2026年8月5日
