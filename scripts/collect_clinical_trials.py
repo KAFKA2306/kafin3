@@ -49,7 +49,7 @@ def normalize(study: dict[str, object]) -> dict[str, object]:
         "start_date": date_value(status, "startDateStruct"),
         "primary_completion_date": date_value(status, "primaryCompletionDateStruct"),
         "completion_date": date_value(status, "completionDateStruct"),
-        "last_update_posted": date_value(status, "studyFirstPostDateStruct") if False else date_value(status, "lastUpdatePostDateStruct"),
+        "last_update_posted": date_value(status, "lastUpdatePostDateStruct"),
         "lead_sponsor": lead.get("name"),
         "sponsor_class": lead.get("class"),
         "enrollment": enrollment.get("count"),
