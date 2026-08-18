@@ -7,15 +7,20 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Build output
+node_modules/
+dist/
+dist-ssr/
 *.local
 
-# Editor directories and files
+# Python
+__pycache__/
+*.py[codz]
+
+# Editor files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
@@ -23,11 +28,8 @@ dist-ssr
 *.sln
 *.sw?
 
-# Environment variables
+# Credentials and environment files
 .env
-token.json"config.json" 
-"*.key" 
-".env" 
-"token.json" 
-".env" 
-"token.json" 
+credentials.json
+token.json
+*.key
