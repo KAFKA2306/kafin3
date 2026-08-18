@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Python generated files
+__pycache__/
+*.py[codz]
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -23,11 +27,8 @@ dist-ssr
 *.sln
 *.sw?
 
-# Environment variables
+# Environment variables and local credentials
 .env
-token.json"config.json" 
-"*.key" 
-".env" 
-"token.json" 
-".env" 
-"token.json" 
+*.key
+token.json
+credentials.json
