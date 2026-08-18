@@ -32,4 +32,3 @@ __pycache__/
 *.key
 token.json
 credentials.json
-config.json
