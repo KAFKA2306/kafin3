@@ -1,0 +1,9 @@
+{
+  "datasets": {
+    "clinical_trials": "clinical-trials.json",
+    "fda_approvals": "fda-approvals.json",
+    "sequencing_costs": "sequencing-costs.json"
+  },
+  "retrieved_at": "2026-08-19T03:25:20.758682+00:00",
+  "schema_version": 1
+}

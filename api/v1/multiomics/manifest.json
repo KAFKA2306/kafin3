@@ -1,0 +1,36 @@
+{
+  "files": {
+    "clinical-trials.json": {
+      "bytes": 2648032,
+      "sha256": "fc7c58eb25ccccdd6348e350a1ff23cab740cc459dbad6a04b9ae0f9b3ee06a0"
+    },
+    "fda-approvals.json": {
+      "bytes": 25537829,
+      "sha256": "0c32c2cfce11da7b5ab221406126f39070683151fefe041b6ee0a3726926b441"
+    },
+    "index.json": {
+      "bytes": 239,
+      "sha256": "f62d317843173e931374c8b0d7ba201f41164b2486690167492ad58bba38adc4"
+    },
+    "sequencing-costs.json": {
+      "bytes": 20310,
+      "sha256": "40aa41a6a5f765ea98d242773423a7a9a4a4867e1abfe869dd4c61244019f89f"
+    }
+  },
+  "retrieved_at": "2026-08-19T03:25:20.758682+00:00",
+  "schema_version": 1,
+  "sources": {
+    "clinical_trials_version": {
+      "sha256": "89211135e43065a151a910df2dcd686ef8844acf11cfd46e4b00f914df411cb9",
+      "url": "https://clinicaltrials.gov/api/v2/version"
+    },
+    "drugs_at_fda": {
+      "sha256": "e108f1690115b7f7ee2c93552143599d38aa20441c379159c2418fa17314e59e",
+      "url": "https://www.fda.gov/media/89850/download?attachment="
+    },
+    "nhgri": {
+      "sha256": "b65205dd4df72f9032b1ca3cd94cc329d8d1f5ee5eb9994a2a51d4e9aa6a5fbd",
+      "url": "https://www.genome.gov/sites/default/files/media/files/2023-05/Sequencing_Cost_Data_Table_May2022.xls"
+    }
+  }
+}
