@@ -9,6 +9,7 @@
 
 `api/v1/multiomics/` is the current machine-readable surface:
 
+- `summary.json` — cross-repository use向けの小さなsummary。trial count、FDA approval count、sequencing costの最新値だけを保持し、巨大ledgerを複製しない
 - `clinical-trials.json` — ClinicalTrials.gov API v2 studies, five-year coverage window, phase/status/sponsor/timing and explicit omics evidence
 - `sequencing-costs.json` — NHGRI cost per megabase and cost per genome history
 - `fda-approvals.json` — approved Drugs@FDA submissions with application/product identity and official reverse links
@@ -20,6 +21,7 @@ Rebuild from the primary sources:
 ```bash
 python -m pip install xlrd==2.0.2
 python scripts/update_multiomics.py
+python scripts/build_multiomics_summary.py
 ```
 
 ## Data contract
@@ -30,6 +32,7 @@ python scripts/update_multiomics.py
 - NHGRI methodology is retained with its sequencing-cost observations; methodology changes are not silently normalized away.
 - Drugs@FDA approvals point back to their official application page. FDA records are not assigned an omics modality from product names or sponsor marketing; absent explicit evidence, modality remains `unknown`.
 - Source URL, retrieval metadata and SHA-256 provenance are retained so every aggregate can be traced back to the source dataset.
+- `summary.json` is derived only from the canonical domain outputs and intentionally excludes full `studies` / `approvals` arrays.
 
 ## Primary sources
 
@@ -43,6 +46,6 @@ python scripts/update_multiomics.py
 python -m unittest discover -s tests -v
 ```
 
-CI additionally downloads all three live primary sources and fails closed when the source schema, five-year trial coverage, sequencing-cost history, or FDA approval ledger is missing.
+CI additionally downloads all three live primary sources and fails closed when the source schema, five-year trial coverage, sequencing-cost history, FDA approval ledger, or compact summary is missing.
 
 Tracked work: https://github.com/KAFKA2306/kafin3/issues/6

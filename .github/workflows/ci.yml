@@ -44,7 +44,9 @@ jobs:
           print(f"verified {len(payload['studies'])} studies; dataTimestamp={payload['api_version']['dataTimestamp']}")
           PY
       - name: Build live multiomics evidence
-        run: python scripts/update_multiomics.py --output /tmp/multiomics
+        run: |
+          python scripts/update_multiomics.py --output /tmp/multiomics
+          python scripts/build_multiomics_summary.py --root /tmp/multiomics
       - name: Audit live multiomics evidence
         run: |
           python - <<'PY'
@@ -54,6 +56,7 @@ jobs:
           trials = json.loads((root/'clinical-trials.json').read_text())
           costs = json.loads((root/'sequencing-costs.json').read_text())
           approvals = json.loads((root/'fda-approvals.json').read_text())
+          summary = json.loads((root/'summary.json').read_text())
           manifest = json.loads((root/'manifest.json').read_text())
           assert trials['coverage_years'] == 5
           assert trials['study_count'] > 0
@@ -64,10 +67,16 @@ jobs:
           assert all(row['source_url'].startswith('https://www.accessdata.fda.gov/') for row in approvals['approvals'])
           assert all(row['omics_modalities'] == ['unknown'] for row in approvals['approvals'])
           assert set(manifest['sources']) == {'clinical_trials_version', 'nhgri', 'drugs_at_fda'}
+          assert summary['clinical_trials']['study_count'] == trials['study_count']
+          assert summary['sequencing_costs']['observation_count'] == len(costs['observations'])
+          assert summary['fda_approvals']['approval_count'] == approvals['approval_count']
+          assert 'studies' not in summary['clinical_trials']
+          assert 'approvals' not in summary['fda_approvals']
           print({
               'trials': trials['study_count'],
               'sequencing_cost_observations': len(costs['observations']),
               'fda_approvals': approvals['approval_count'],
+              'summary_bytes': (root/'summary.json').stat().st_size,
           })
           PY
       - name: Clean checkout
