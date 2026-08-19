@@ -1,6 +1,5 @@
 import importlib.util
 import io
-import json
 import sys
 import unittest
 import zipfile
@@ -17,7 +16,7 @@ SPEC.loader.exec_module(MODULE)
 
 def make_drugs_zip() -> bytes:
     out = io.BytesIO()
-    approved = date.today().strftime("%m/%d/%Y")
+    approved = date.today().strftime("%Y%m%d")
     with zipfile.ZipFile(out, "w") as archive:
         archive.writestr("Applications.txt", "ApplNo\tApplType\tSponsorName\n000001\tNDA\tExample Sponsor\n")
         archive.writestr(
@@ -53,6 +52,7 @@ class MultiomicsViewsTest(unittest.TestCase):
         self.assertEqual(view["modality_counts"], {"genomics": 1})
 
     def test_parse_date_accepts_fda_and_iso_dates(self):
+        self.assertEqual(MODULE.parse_date("20260729"), "2026-07-29")
         self.assertEqual(MODULE.parse_date("07/29/2026"), "2026-07-29")
         self.assertEqual(MODULE.parse_date("2026-07-29"), "2026-07-29")
 
