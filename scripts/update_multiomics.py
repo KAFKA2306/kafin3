@@ -12,7 +12,6 @@ import urllib.request
 import zipfile
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any
 
 from collect_clinical_trials import DEFAULT_QUERY, collect
 
@@ -47,7 +46,7 @@ def parse_date(value: object) -> str | None:
     if isinstance(value, date):
         return value.isoformat()
     text = str(value).strip()
-    for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%m/%d/%y", "%Y-%m", "%b-%y", "%b %Y", "%Y"):
+    for fmt in ("%Y-%m-%d", "%Y%m%d", "%m/%d/%Y", "%m/%d/%y", "%Y-%m", "%b-%y", "%b %Y", "%Y"):
         try:
             return datetime.strptime(text, fmt).date().isoformat()
         except ValueError:
@@ -64,7 +63,6 @@ def parse_nhgri_xls(raw: bytes) -> list[dict[str, object]]:
         import xlrd  # type: ignore
     except ImportError as exc:
         raise RuntimeError("xlrd is required to read the NHGRI .xls workbook") from exc
-
     book = xlrd.open_workbook(file_contents=raw)
     for sheet in book.sheets():
         header_row = None
@@ -83,7 +81,6 @@ def parse_nhgri_xls(raw: bytes) -> list[dict[str, object]]:
                 break
         if header_row is None:
             continue
-
         rows: list[dict[str, object]] = []
         for r in range(header_row + 1, sheet.nrows):
             raw_date = sheet.cell_value(r, date_col)
@@ -122,8 +119,7 @@ def zip_table(archive: zipfile.ZipFile, wanted: str) -> list[dict[str, str]]:
     candidates = [name for name in archive.namelist() if Path(name).name.lower() == wanted.lower()]
     if not candidates:
         raise ValueError(f"Drugs@FDA archive missing {wanted}; files={archive.namelist()}")
-    text = decode_table(archive.read(candidates[0]))
-    return list(csv.DictReader(io.StringIO(text), delimiter="\t"))
+    return list(csv.DictReader(io.StringIO(decode_table(archive.read(candidates[0]))), delimiter="\t"))
 
 
 def parse_fda_zip(raw: bytes, years: int = 5) -> list[dict[str, object]]:
@@ -134,7 +130,6 @@ def parse_fda_zip(raw: bytes, years: int = 5) -> list[dict[str, object]]:
         for row in zip_table(archive, "Products.txt"):
             products_by_app.setdefault(row.get("ApplNo", "").strip(), []).append(row)
         submissions = zip_table(archive, "Submissions.txt")
-
     approvals: list[dict[str, object]] = []
     for row in submissions:
         if row.get("SubmissionStatus", "").strip().upper() != "AP":
@@ -153,16 +148,13 @@ def parse_fda_zip(raw: bytes, years: int = 5) -> list[dict[str, object]]:
             "submission_number": row.get("SubmissionNo") or None,
             "approval_date": approval_date,
             "review_priority": row.get("ReviewPriority") or None,
-            "products": [
-                {
-                    "product_number": product.get("ProductNo") or None,
-                    "drug_name": product.get("DrugName") or None,
-                    "active_ingredient": product.get("ActiveIngredient") or None,
-                    "form": product.get("Form") or None,
-                    "strength": product.get("Strength") or None,
-                }
-                for product in products
-            ],
+            "products": [{
+                "product_number": product.get("ProductNo") or None,
+                "drug_name": product.get("DrugName") or None,
+                "active_ingredient": product.get("ActiveIngredient") or None,
+                "form": product.get("Form") or None,
+                "strength": product.get("Strength") or None,
+            } for product in products],
             "omics_modalities": ["unknown"],
             "modality_evidence": [],
             "source_url": f"https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo={appl_no}",
@@ -201,66 +193,29 @@ def build(years: int, trial_pages: int, trial_page_size: int) -> dict[str, objec
     if trials.get("next_page_token"):
         raise ValueError("ClinicalTrials.gov pagination was truncated; increase --trial-pages")
     trial_view = trial_coverage(trials["studies"], years)
-
     nhgri_raw = fetch(NHGRI_URL)
     sequencing_costs = parse_nhgri_xls(nhgri_raw)
     if len(sequencing_costs) < 10:
         raise ValueError("NHGRI sequencing-cost history is unexpectedly short")
-
     fda_raw = fetch(FDA_URL)
     approvals = parse_fda_zip(fda_raw, years=years)
     if not approvals:
         raise ValueError("Drugs@FDA returned no approved submissions in coverage window")
-
     retrieved_at = datetime.now(timezone.utc).isoformat()
     return {
         "retrieved_at": retrieved_at,
-        "clinical_trials": {
-            **trial_view,
-            "api_version": trials["api_version"],
-            "query": trials["query"],
-            "source_pages": trials["source_pages"],
-            "version_source": trials["version_source"],
-        },
-        "sequencing_costs": {
-            "schema_version": 1,
-            "publisher": "National Human Genome Research Institute",
-            "source_url": NHGRI_URL,
-            "source_page": NHGRI_PAGE,
-            "source_sha256": sha256(nhgri_raw),
-            "observations": sequencing_costs,
-        },
-        "fda_approvals": {
-            "schema_version": 1,
-            "publisher": "U.S. Food and Drug Administration / Drugs@FDA",
-            "source_url": FDA_URL,
-            "source_page": FDA_PAGE,
-            "source_sha256": sha256(fda_raw),
-            "coverage_years": years,
-            "approval_count": len(approvals),
-            "approvals": approvals,
-        },
+        "clinical_trials": {**trial_view, "api_version": trials["api_version"], "query": trials["query"], "source_pages": trials["source_pages"], "version_source": trials["version_source"]},
+        "sequencing_costs": {"schema_version": 1, "publisher": "National Human Genome Research Institute", "source_url": NHGRI_URL, "source_page": NHGRI_PAGE, "source_sha256": sha256(nhgri_raw), "observations": sequencing_costs},
+        "fda_approvals": {"schema_version": 1, "publisher": "U.S. Food and Drug Administration / Drugs@FDA", "source_url": FDA_URL, "source_page": FDA_PAGE, "source_sha256": sha256(fda_raw), "coverage_years": years, "approval_count": len(approvals), "approvals": approvals},
     }
 
 
 def write(output: Path, payload: dict[str, object]) -> None:
     output.mkdir(parents=True, exist_ok=True)
-    files = {
-        "clinical-trials.json": payload["clinical_trials"],
-        "sequencing-costs.json": payload["sequencing_costs"],
-        "fda-approvals.json": payload["fda_approvals"],
-    }
+    files = {"clinical-trials.json": payload["clinical_trials"], "sequencing-costs.json": payload["sequencing_costs"], "fda-approvals.json": payload["fda_approvals"]}
     for name, value in files.items():
         (output / name).write_bytes(canonical_json(value))
-    index = {
-        "schema_version": 1,
-        "retrieved_at": payload["retrieved_at"],
-        "datasets": {
-            "clinical_trials": "clinical-trials.json",
-            "sequencing_costs": "sequencing-costs.json",
-            "fda_approvals": "fda-approvals.json",
-        },
-    }
+    index = {"schema_version": 1, "retrieved_at": payload["retrieved_at"], "datasets": {"clinical_trials": "clinical-trials.json", "sequencing_costs": "sequencing-costs.json", "fda_approvals": "fda-approvals.json"}}
     (output / "index.json").write_bytes(canonical_json(index))
     manifest = {
         "schema_version": 1,
@@ -270,10 +225,7 @@ def write(output: Path, payload: dict[str, object]) -> None:
             "nhgri": {"url": NHGRI_URL, "sha256": payload["sequencing_costs"]["source_sha256"]},
             "drugs_at_fda": {"url": FDA_URL, "sha256": payload["fda_approvals"]["source_sha256"]},
         },
-        "files": {
-            name: {"sha256": sha256((output / name).read_bytes()), "bytes": (output / name).stat().st_size}
-            for name in sorted([*files, "index.json"])
-        },
+        "files": {name: {"sha256": sha256((output / name).read_bytes()), "bytes": (output / name).stat().st_size} for name in sorted([*files, "index.json"])},
     }
     (output / "manifest.json").write_bytes(canonical_json(manifest))
 
@@ -287,11 +239,7 @@ def main() -> None:
     args = parser.parse_args()
     payload = build(args.years, args.trial_pages, args.trial_page_size)
     write(args.output, payload)
-    print(json.dumps({
-        "trials": payload["clinical_trials"]["study_count"],
-        "sequencing_cost_observations": len(payload["sequencing_costs"]["observations"]),
-        "fda_approvals": payload["fda_approvals"]["approval_count"],
-    }))
+    print(json.dumps({"trials": payload["clinical_trials"]["study_count"], "sequencing_cost_observations": len(payload["sequencing_costs"]["observations"]), "fda_approvals": payload["fda_approvals"]["approval_count"]}))
 
 
 if __name__ == "__main__":
