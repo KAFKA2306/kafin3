@@ -12,6 +12,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
       - name: Reject tracked OAuth credential files
@@ -23,6 +24,8 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+      - name: Install NHGRI workbook reader
+        run: python -m pip install xlrd==2.0.2
       - name: Compile
         run: python -m compileall -q scripts tests
       - name: Unit tests
@@ -36,8 +39,36 @@ jobs:
           payload = json.loads(Path('/tmp/clinical-trials.json').read_text())
           assert payload['studies']
           assert payload['version_source']['url'].endswith('/version')
+          assert payload['api_version'].get('dataTimestamp')
           assert payload['source_pages']
-          print(f"verified {len(payload['studies'])} studies")
+          print(f"verified {len(payload['studies'])} studies; dataTimestamp={payload['api_version']['dataTimestamp']}")
+          PY
+      - name: Build live multiomics evidence
+        run: python scripts/update_multiomics.py --output /tmp/multiomics
+      - name: Audit live multiomics evidence
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('/tmp/multiomics')
+          trials = json.loads((root/'clinical-trials.json').read_text())
+          costs = json.loads((root/'sequencing-costs.json').read_text())
+          approvals = json.loads((root/'fda-approvals.json').read_text())
+          manifest = json.loads((root/'manifest.json').read_text())
+          assert trials['coverage_years'] == 5
+          assert trials['study_count'] > 0
+          assert trials['api_version'].get('dataTimestamp')
+          assert len(costs['observations']) >= 10
+          assert costs['observations'][0]['observation_date'] <= '2021-01-01'
+          assert approvals['approval_count'] > 0
+          assert all(row['source_url'].startswith('https://www.accessdata.fda.gov/') for row in approvals['approvals'])
+          assert all(row['omics_modalities'] == ['unknown'] for row in approvals['approvals'])
+          assert set(manifest['sources']) == {'clinical_trials_version', 'nhgri', 'drugs_at_fda'}
+          print({
+              'trials': trials['study_count'],
+              'sequencing_cost_observations': len(costs['observations']),
+              'fda_approvals': approvals['approval_count'],
+          })
           PY
       - name: Clean checkout
         run: test -z "$(git status --porcelain)"

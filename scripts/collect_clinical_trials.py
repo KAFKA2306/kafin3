@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Collect multiomics-related interventional studies from ClinicalTrials.gov API v2."""
+"""Collect multiomics-related studies from ClinicalTrials.gov API v2."""
 from __future__ import annotations
 
 import argparse
@@ -12,6 +12,12 @@ from urllib.request import Request, urlopen
 
 API = "https://clinicaltrials.gov/api/v2"
 DEFAULT_QUERY = "genomics OR transcriptomics OR proteomics OR multiomics"
+MODALITY_TERMS = {
+    "genomics": ("genomic", "genomics"),
+    "transcriptomics": ("transcriptomic", "transcriptomics"),
+    "proteomics": ("proteomic", "proteomics"),
+    "multiomics": ("multiomics", "multi-omics", "multi omics"),
+}
 
 
 def get_json(path: str, params: dict[str, object] | None = None) -> tuple[dict[str, object], bytes, str]:
@@ -28,6 +34,35 @@ def date_value(module: dict[str, object], key: str) -> str | None:
     return value.get("date") if isinstance(value, dict) else None
 
 
+def modality_evidence(study: dict[str, object]) -> tuple[list[str], list[dict[str, str]]]:
+    protocol = study.get("protocolSection", {})
+    identification = protocol.get("identificationModule", {})
+    conditions = protocol.get("conditionsModule", {})
+    arms = protocol.get("armsInterventionsModule", {})
+    candidates: list[tuple[str, str]] = []
+    for field, value in (
+        ("brief_title", identification.get("briefTitle")),
+        ("official_title", identification.get("officialTitle")),
+    ):
+        if value:
+            candidates.append((field, str(value)))
+    for value in conditions.get("conditions") or []:
+        candidates.append(("condition", str(value)))
+    for item in arms.get("interventions") or []:
+        for key in ("name", "description"):
+            if item.get(key):
+                candidates.append((f"intervention_{key}", str(item[key])))
+
+    found: dict[str, dict[str, str]] = {}
+    for field, text in candidates:
+        lower = text.lower()
+        for modality, terms in MODALITY_TERMS.items():
+            term = next((term for term in terms if term in lower), None)
+            if term and modality not in found:
+                found[modality] = {"modality": modality, "field": field, "term": term}
+    return sorted(found), [found[key] for key in sorted(found)]
+
+
 def normalize(study: dict[str, object]) -> dict[str, object]:
     protocol = study.get("protocolSection", {})
     identification = protocol.get("identificationModule", {})
@@ -39,6 +74,7 @@ def normalize(study: dict[str, object]) -> dict[str, object]:
     interventions = arms.get("interventions") or []
     lead = sponsors.get("leadSponsor") or {}
     enrollment = design.get("enrollmentInfo") or {}
+    modalities, evidence = modality_evidence(study)
 
     return {
         "nct_id": identification.get("nctId"),
@@ -46,6 +82,7 @@ def normalize(study: dict[str, object]) -> dict[str, object]:
         "study_type": design.get("studyType"),
         "phases": design.get("phases") or [],
         "status": status.get("overallStatus"),
+        "study_first_posted": date_value(status, "studyFirstPostDateStruct"),
         "start_date": date_value(status, "startDateStruct"),
         "primary_completion_date": date_value(status, "primaryCompletionDateStruct"),
         "completion_date": date_value(status, "completionDateStruct"),
@@ -55,13 +92,9 @@ def normalize(study: dict[str, object]) -> dict[str, object]:
         "enrollment": enrollment.get("count"),
         "enrollment_type": enrollment.get("type"),
         "conditions": conditions.get("conditions") or [],
-        "interventions": [
-            {
-                "type": item.get("type"),
-                "name": item.get("name"),
-            }
-            for item in interventions
-        ],
+        "interventions": [{"type": item.get("type"), "name": item.get("name")} for item in interventions],
+        "omics_modalities": modalities or ["unknown"],
+        "modality_evidence": evidence,
     }
 
 
@@ -89,7 +122,7 @@ def collect(query: str, pages: int, page_size: int) -> dict[str, object]:
             break
 
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "publisher": "ClinicalTrials.gov / U.S. National Library of Medicine",
         "query": query,
         "retrieved_at": datetime.now(timezone.utc).isoformat(),

@@ -1,42 +1,48 @@
-# kafin3 — multiomics evidence collector
+# kafin3 — multiomics evidence
 
-`kafin3` is being rebuilt as a small, evidence-first repository for multiomics research data. The legacy finance dashboard, Streamlit/FastAPI prototypes, and their JavaScript/Python dependency stacks are not supported interfaces.
+[![CI](https://github.com/KAFKA2306/kafin3/actions/workflows/ci.yml/badge.svg)](https://github.com/KAFKA2306/kafin3/actions/workflows/ci.yml)
+[![Multiomics source](https://github.com/KAFKA2306/kafin3/actions/workflows/multiomics-source.yml/badge.svg)](https://github.com/KAFKA2306/kafin3/actions/workflows/multiomics-source.yml)
 
-## Current verified scope
+`kafin3` is an evidence-first multiomics dataset. Legacy finance, Streamlit, FastAPI, and LLM prototypes are not supported interfaces.
 
-The current executable capability is a ClinicalTrials.gov API v2 collector:
+## Canonical outputs
+
+`api/v1/multiomics/` is the current machine-readable surface:
+
+- `clinical-trials.json` — ClinicalTrials.gov API v2 studies, five-year coverage window, phase/status/sponsor/timing and explicit omics evidence
+- `sequencing-costs.json` — NHGRI cost per megabase and cost per genome history
+- `fda-approvals.json` — approved Drugs@FDA submissions with application/product identity and official reverse links
+- `index.json` — dataset entry points
+- `manifest.json` — source URLs, hashes and generated-file hashes
+
+Rebuild from the primary sources:
 
 ```bash
-python scripts/collect_clinical_trials.py --pages 1 --page-size 100
+python -m pip install xlrd==2.0.2
+python scripts/update_multiomics.py
 ```
 
-It records API version metadata, retrieval time, source-page URLs and SHA-256 hashes, and normalized study fields including NCT ID, phase, status, dates, sponsor, enrollment, conditions, and interventions.
+## Data contract
 
-ClinicalTrials.gov documents `/api/v2/studies` as the modern study endpoint and `/api/v2/version` as the source for API version and `dataTimestamp`.
+- ClinicalTrials.gov `/api/v2/version` metadata, including `dataTimestamp`, is preserved.
+- Trial modality is assigned only when the official study record explicitly contains genomics/transcriptomics/proteomics/multiomics wording; otherwise it remains `unknown`.
+- Study start, primary completion, completion, first-posted, and last-update dates remain separate events.
+- NHGRI methodology is retained with its sequencing-cost observations; methodology changes are not silently normalized away.
+- Drugs@FDA approvals point back to their official application page. FDA records are not assigned an omics modality from product names or sponsor marketing; absent explicit evidence, modality remains `unknown`.
+- Source URL, retrieval metadata and SHA-256 provenance are retained so every aggregate can be traced back to the source dataset.
 
-Primary source: https://clinicaltrials.gov/data-api/api
+## Primary sources
 
-## Tests
+- ClinicalTrials.gov API v2: https://clinicaltrials.gov/data-api/api
+- NHGRI DNA Sequencing Costs: https://www.genome.gov/about-genomics/fact-sheets/DNA-Sequencing-Costs-Data
+- Drugs@FDA Data Files: https://www.fda.gov/drugs/drug-approvals-and-databases/drugsfda-data-files
+
+## Verification
 
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-The test suite uses only the Python standard library.
+CI additionally downloads all three live primary sources and fails closed when the source schema, five-year trial coverage, sequencing-cost history, or FDA approval ledger is missing.
 
-## Repository boundary
-
-Current work is tracked in Issue #6:
-https://github.com/KAFKA2306/kafin3/issues/6
-
-Still unverified and therefore not claimed as complete:
-
-- five years of multiomics trial coverage
-- NHGRI sequencing-cost history ingestion
-- FDA approval ledger
-- modality classification beyond fields explicitly present in official records
-- public Web/API deployment
-
-## Security
-
-Local credentials such as `.env`, `token.json`, and `credentials.json` must not be committed. A credential file was previously tracked in Git history; deleting it from the current tree does not revoke the credential or erase historical blobs, so affected credentials must be revoked or rotated separately.
+Tracked work: https://github.com/KAFKA2306/kafin3/issues/6
