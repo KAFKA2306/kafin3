@@ -1,0 +1,33 @@
+{
+  "clinical_trials": {
+    "coverage_years": 5,
+    "first_study_posted": "2021-08-16",
+    "last_study_posted": "2026-08-18",
+    "modality_counts": {
+      "genomics": 399,
+      "multiomics": 128,
+      "proteomics": 183,
+      "transcriptomics": 103,
+      "unknown": 1845
+    },
+    "study_count": 2569
+  },
+  "fda_approvals": {
+    "approval_count": 25307,
+    "coverage_years": 5,
+    "source_url": "https://www.fda.gov/media/89850/download?attachment="
+  },
+  "retrieved_at": "2026-08-18T09:00:05",
+  "schema_version": 1,
+  "sequencing_costs": {
+    "first_observation_date": "2001-09-30",
+    "latest": {
+      "cost_per_genome_usd": 524.6246837058089,
+      "cost_per_megabase_usd": 0.005829163152286766,
+      "methodology": "NHGRI Genome Sequencing Program production-oriented sequencing cost accounting",
+      "observation_date": "2022-05-31"
+    },
+    "observation_count": 78,
+    "source_url": "https://www.genome.gov/sites/default/files/media/files/2023-05/Sequencing_Cost_Data_Table_May2022.xls"
+  }
+}
