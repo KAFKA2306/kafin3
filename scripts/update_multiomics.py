@@ -119,25 +119,29 @@ def zip_table(archive: zipfile.ZipFile, wanted: str) -> list[dict[str, str]]:
     candidates = [name for name in archive.namelist() if Path(name).name.lower() == wanted.lower()]
     if not candidates:
         raise ValueError(f"Drugs@FDA archive missing {wanted}; files={archive.namelist()}")
-    return list(csv.DictReader(io.StringIO(decode_table(archive.read(candidates[0]))), delimiter="\t"))
+    reader = csv.DictReader(io.StringIO(decode_table(archive.read(candidates[0]))), delimiter="\t")
+    return [
+        {str(key or "").strip(): str(value or "").strip() for key, value in row.items()}
+        for row in reader
+    ]
 
 
 def parse_fda_zip(raw: bytes, years: int = 5) -> list[dict[str, object]]:
     cutoff = date.today() - timedelta(days=366 * years)
     with zipfile.ZipFile(io.BytesIO(raw)) as archive:
-        applications = {row.get("ApplNo", "").strip(): row for row in zip_table(archive, "Applications.txt")}
+        applications = {row.get("ApplNo", ""): row for row in zip_table(archive, "Applications.txt")}
         products_by_app: dict[str, list[dict[str, str]]] = {}
         for row in zip_table(archive, "Products.txt"):
-            products_by_app.setdefault(row.get("ApplNo", "").strip(), []).append(row)
+            products_by_app.setdefault(row.get("ApplNo", ""), []).append(row)
         submissions = zip_table(archive, "Submissions.txt")
     approvals: list[dict[str, object]] = []
     for row in submissions:
-        if row.get("SubmissionStatus", "").strip().upper() != "AP":
+        if row.get("SubmissionStatus", "").upper() != "AP":
             continue
         approval_date = parse_date(row.get("SubmissionStatusDate"))
         if not approval_date or date.fromisoformat(approval_date) < cutoff:
             continue
-        appl_no = row.get("ApplNo", "").strip()
+        appl_no = row.get("ApplNo", "")
         app = applications.get(appl_no, {})
         products = products_by_app.get(appl_no, [])
         approvals.append({
@@ -159,6 +163,14 @@ def parse_fda_zip(raw: bytes, years: int = 5) -> list[dict[str, object]]:
             "modality_evidence": [],
             "source_url": f"https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo={appl_no}",
         })
+    if not approvals:
+        headers = list(submissions[0]) if submissions else []
+        statuses = sorted({row.get("SubmissionStatus", "") for row in submissions})[:20]
+        approved_dates = [row.get("SubmissionStatusDate", "") for row in submissions if row.get("SubmissionStatus", "").upper() == "AP"][:10]
+        raise ValueError(
+            "Drugs@FDA returned no approved submissions in coverage window; "
+            f"headers={headers} statuses={statuses} approved_date_samples={approved_dates} cutoff={cutoff.isoformat()}"
+        )
     return sorted(approvals, key=lambda row: (str(row["approval_date"]), str(row["application_number"])))
 
 
@@ -199,8 +211,6 @@ def build(years: int, trial_pages: int, trial_page_size: int) -> dict[str, objec
         raise ValueError("NHGRI sequencing-cost history is unexpectedly short")
     fda_raw = fetch(FDA_URL)
     approvals = parse_fda_zip(fda_raw, years=years)
-    if not approvals:
-        raise ValueError("Drugs@FDA returned no approved submissions in coverage window")
     retrieved_at = datetime.now(timezone.utc).isoformat()
     return {
         "retrieved_at": retrieved_at,
