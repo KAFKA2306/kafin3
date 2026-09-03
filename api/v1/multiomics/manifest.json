@@ -1,8 +1,8 @@
 {
   "files": {
     "clinical-trials.json": {
-      "bytes": 2646648,
-      "sha256": "5f0c52a152cbe1597bf57b83b2fa416851f51ec1d62b4deeeae5af1abf9ce4cd"
+      "bytes": 2650654,
+      "sha256": "b0124bef8f9bf4036b40d64724ad5ec12c51c4b51df18c6341c6887a9b376bf7"
     },
     "fda-approvals.json": {
       "bytes": 25548993,
@@ -10,18 +10,18 @@
     },
     "index.json": {
       "bytes": 239,
-      "sha256": "c7bed37f3f6e895b5af3e7e29bd39f2116f564f49eaa5f29cf4f45508b025f3d"
+      "sha256": "8b0035a48ab38a7e1419eb216af54d242e49c2b6c0f51c620d2e47da5b03dd67"
     },
     "sequencing-costs.json": {
       "bytes": 20310,
       "sha256": "40aa41a6a5f765ea98d242773423a7a9a4a4867e1abfe869dd4c61244019f89f"
     }
   },
-  "retrieved_at": "2026-09-02T17:57:45.664433+00:00",
+  "retrieved_at": "2026-09-03T17:56:31.170967+00:00",
   "schema_version": 1,
   "sources": {
     "clinical_trials_version": {
-      "sha256": "5529f616612026daa93c910e9b0d4e849b346dc90886a85f4e66f6799a80f8cf",
+      "sha256": "5b8731e1bff9664c066d0410c95bdc13529af8576dd03dcfad13cca222551cc3",
       "url": "https://clinicaltrials.gov/api/v2/version"
     },
     "drugs_at_fda": {
