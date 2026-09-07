@@ -4,15 +4,15 @@
     "dataTimestamp": "2026-09-04T09:00:06"
   },
   "coverage_years": 5,
-  "cutoff_date": "2021-08-31",
-  "first_study_posted": "2021-08-31",
+  "cutoff_date": "2021-09-03",
+  "first_study_posted": "2021-09-05",
   "last_study_posted": "2026-09-04",
   "modality_counts": {
-    "genomics": 397,
+    "genomics": 396,
     "multiomics": 128,
     "proteomics": 181,
     "transcriptomics": 104,
-    "unknown": 1853
+    "unknown": 1849
   },
   "query": "genomics OR transcriptomics OR proteomics OR multiomics",
   "schema_version": 1,
@@ -1974,53 +1974,6 @@
       "study_first_posted": "2025-08-08",
       "study_type": "OBSERVATIONAL",
       "title": "Nutrient And Non-Nutrient Intake, Relative Biomarkers and Their Health Effects In Apparently Healthy Participants"
-    },
-    {
-      "completion_date": "2025-02-20",
-      "conditions": [
-        "Multiple Myeloma"
-      ],
-      "enrollment": 40,
-      "enrollment_type": "ACTUAL",
-      "interventions": [
-        {
-          "name": "Lenalidomide",
-          "type": "DRUG"
-        },
-        {
-          "name": "bb2121",
-          "type": "BIOLOGICAL"
-        },
-        {
-          "name": "Cyclophosphamide",
-          "type": "DRUG"
-        },
-        {
-          "name": "Fludarabine",
-          "type": "DRUG"
-        },
-        {
-          "name": "leukapheresis",
-          "type": "PROCEDURE"
-        }
-      ],
-      "last_update_posted": "2026-05-19",
-      "lead_sponsor": "Medical College of Wisconsin",
-      "modality_evidence": [],
-      "nct_id": "NCT05032820",
-      "omics_modalities": [
-        "unknown"
-      ],
-      "phases": [
-        "PHASE2"
-      ],
-      "primary_completion_date": "2024-08-22",
-      "sponsor_class": "OTHER",
-      "start_date": "2022-01-05",
-      "status": "COMPLETED",
-      "study_first_posted": "2021-09-02",
-      "study_type": "INTERVENTIONAL",
-      "title": "Upfront Chimeric Antigen Receptor T-Cell to Upgrade Response in Multiple Myeloma"
     },
     {
       "completion_date": "2026-12",
@@ -16455,30 +16408,6 @@
       "title": "A Study of Oral 7HP349 (Alintegimod) in Combination With Ipilimumab Followed by Nivolumab Monotherapy"
     },
     {
-      "completion_date": "2030-04",
-      "conditions": [
-        "Ovarian Cancer"
-      ],
-      "enrollment": 50,
-      "enrollment_type": "ESTIMATED",
-      "interventions": [],
-      "last_update_posted": "2022-08-22",
-      "lead_sponsor": "University Hospital, Strasbourg, France",
-      "modality_evidence": [],
-      "nct_id": "NCT05030805",
-      "omics_modalities": [
-        "unknown"
-      ],
-      "phases": [],
-      "primary_completion_date": "2030-04",
-      "sponsor_class": "OTHER",
-      "start_date": "2022-05-01",
-      "status": "RECRUITING",
-      "study_first_posted": "2021-09-01",
-      "study_type": "OBSERVATIONAL",
-      "title": "Transcriptional Map of Ovarian Cancer at the Single Cell Level"
-    },
-    {
       "completion_date": "2028-11",
       "conditions": [
         "Gestational Diabetes Mellitus (GDM)",
@@ -28020,52 +27949,6 @@
       "study_first_posted": "2026-09-03",
       "study_type": "INTERVENTIONAL",
       "title": "Yiqi Fumai Lyophilized Injection for Chronic Heart Failure Caused by Coronary Heart Disease"
-    },
-    {
-      "completion_date": "2026-08-27",
-      "conditions": [
-        "Locally Advanced Carcinoma",
-        "Metastatic Cancer"
-      ],
-      "enrollment": 235,
-      "enrollment_type": "ACTUAL",
-      "interventions": [
-        {
-          "name": "Next Generation Sequencing",
-          "type": "DIAGNOSTIC_TEST"
-        },
-        {
-          "name": "Next Generation Sequencing",
-          "type": "DIAGNOSTIC_TEST"
-        },
-        {
-          "name": "Biomarker Monitoring",
-          "type": "GENETIC"
-        }
-      ],
-      "last_update_posted": "2026-09-01",
-      "lead_sponsor": "Medical University of Graz",
-      "modality_evidence": [
-        {
-          "field": "brief_title",
-          "modality": "genomics",
-          "term": "genomic"
-        }
-      ],
-      "nct_id": "NCT05032092",
-      "omics_modalities": [
-        "genomics"
-      ],
-      "phases": [
-        "NA"
-      ],
-      "primary_completion_date": "2026-04-14",
-      "sponsor_class": "OTHER",
-      "start_date": "2021-11-24",
-      "status": "COMPLETED",
-      "study_first_posted": "2021-09-02",
-      "study_type": "INTERVENTIONAL",
-      "title": "Evaluation of Efficacy of Comprehensive Genomic Tumour Profiling (CGP) From Liquid and/or Tissue Biopsy in Patients With Locally Advanced and/or Metastatic Solid Cancer"
     },
     {
       "completion_date": "2021-09-30",
@@ -87912,39 +87795,6 @@
       "title": "Multimodal Markers of Neurodegenerative Disorders at Presymptomatic Stages"
     },
     {
-      "completion_date": "2026-09",
-      "conditions": [
-        "Castleman's Disease (CD)",
-        "Langerhans Cell Histiocytosis (LCH)",
-        "Non-Langerhans-Cell Histiocytosis"
-      ],
-      "enrollment": 135,
-      "enrollment_type": "ESTIMATED",
-      "interventions": [
-        {
-          "name": "Genetic testing",
-          "type": "DIAGNOSTIC_TEST"
-        }
-      ],
-      "last_update_posted": "2026-08-06",
-      "lead_sponsor": "Case Comprehensive Cancer Center",
-      "modality_evidence": [],
-      "nct_id": "NCT05028621",
-      "omics_modalities": [
-        "unknown"
-      ],
-      "phases": [
-        "NA"
-      ],
-      "primary_completion_date": "2026-09",
-      "sponsor_class": "OTHER",
-      "start_date": "2021-06-18",
-      "status": "SUSPENDED",
-      "study_first_posted": "2021-08-31",
-      "study_type": "INTERVENTIONAL",
-      "title": "Molecular Basis of Langerhans and Non-Langerhans Cell Histiocytic Neoplasms and Castleman Disease"
-    },
-    {
       "completion_date": "2033-10",
       "conditions": [
         "Stomach Neoplasms, Benign"
@@ -90113,35 +89963,6 @@
       "title": "Oral Microbiota and Muscle Function in the Ageing Subject"
     },
     {
-      "completion_date": "2027-12-01",
-      "conditions": [
-        "Ischemic Stroke"
-      ],
-      "enrollment": 3000,
-      "enrollment_type": "ESTIMATED",
-      "interventions": [
-        {
-          "name": "Antithrombotic drugs",
-          "type": "DRUG"
-        }
-      ],
-      "last_update_posted": "2026-07-30",
-      "lead_sponsor": "Xijing Hospital",
-      "modality_evidence": [],
-      "nct_id": "NCT05032053",
-      "omics_modalities": [
-        "unknown"
-      ],
-      "phases": [],
-      "primary_completion_date": "2027-12-01",
-      "sponsor_class": "OTHER",
-      "start_date": "2022-03-01",
-      "status": "RECRUITING",
-      "study_first_posted": "2021-09-02",
-      "study_type": "OBSERVATIONAL",
-      "title": "Antithrombotic Drug Use in Patients With Ischemic Stroke and Microbleeds"
-    },
-    {
       "completion_date": "2026-12-30",
       "conditions": [
         "Diabetes Mellitus, Type 2",
@@ -90816,7 +90637,7 @@
       "title": "Pragmatic Impact of Proteomic Risk Stratification in Diabetes Mellitus"
     }
   ],
-  "study_count": 2573,
+  "study_count": 2568,
   "version_source": {
     "sha256": "97e1289a9d872f9da4f10ba689bc0bd299360e01f5159e25ad75fd900a787b62",
     "url": "https://clinicaltrials.gov/api/v2/version"
