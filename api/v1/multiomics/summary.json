@@ -8,16 +8,16 @@
       "multiomics": 128,
       "proteomics": 181,
       "transcriptomics": 104,
-      "unknown": 1850
+      "unknown": 1851
     },
-    "study_count": 2570
+    "study_count": 2571
   },
   "fda_approvals": {
-    "approval_count": 25252,
+    "approval_count": 25253,
     "coverage_years": 5,
     "source_url": "https://www.fda.gov/media/89850/download?attachment="
   },
-  "retrieved_at": "2026-09-08T09:00:04",
+  "retrieved_at": "2026-09-09T09:00:04",
   "schema_version": 1,
   "sequencing_costs": {
     "first_observation_date": "2001-09-30",
