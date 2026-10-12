@@ -4,15 +4,15 @@
     "dataTimestamp": "2026-10-09T09:00:05"
   },
   "coverage_years": 5,
-  "cutoff_date": "2021-10-05",
-  "first_study_posted": "2021-10-05",
+  "cutoff_date": "2021-10-08",
+  "first_study_posted": "2021-10-08",
   "last_study_posted": "2026-10-09",
   "modality_counts": {
     "genomics": 397,
     "multiomics": 130,
     "proteomics": 181,
     "transcriptomics": 107,
-    "unknown": 1874
+    "unknown": 1872
   },
   "query": "genomics OR transcriptomics OR proteomics OR multiomics",
   "schema_version": 1,
@@ -28305,30 +28305,6 @@
       "study_first_posted": "2025-02-14",
       "study_type": "OBSERVATIONAL",
       "title": "GENomic Predictors in A Multi-Ethnic Population With Kidney Disease Study"
-    },
-    {
-      "completion_date": "2030-01-01",
-      "conditions": [
-        "Amyotrophic Lateral Sclerosis"
-      ],
-      "enrollment": 40,
-      "enrollment_type": "ESTIMATED",
-      "interventions": [],
-      "last_update_posted": "2026-07-08",
-      "lead_sponsor": "University of Illinois at Chicago",
-      "modality_evidence": [],
-      "nct_id": "NCT05067179",
-      "omics_modalities": [
-        "unknown"
-      ],
-      "phases": [],
-      "primary_completion_date": "2030-01-01",
-      "sponsor_class": "OTHER",
-      "start_date": "2020-09-01",
-      "status": "RECRUITING",
-      "study_first_posted": "2021-10-05",
-      "study_type": "OBSERVATIONAL",
-      "title": "Analysis of Human ALS Tissues and Registry of ALS Patients"
     },
     {
       "completion_date": "2028-12-31",
@@ -88344,30 +88320,6 @@
       "title": "NPWTi on Closure of Chronic Pressure Sores"
     },
     {
-      "completion_date": "2026-10",
-      "conditions": [
-        "Colorectal Cancer Metastatic"
-      ],
-      "enrollment": 100,
-      "enrollment_type": "ESTIMATED",
-      "interventions": [],
-      "last_update_posted": "2024-04-18",
-      "lead_sponsor": "Centre hospitalier de l'Université de Montréal (CHUM)",
-      "modality_evidence": [],
-      "nct_id": "NCT05068531",
-      "omics_modalities": [
-        "unknown"
-      ],
-      "phases": [],
-      "primary_completion_date": "2026-10",
-      "sponsor_class": "OTHER",
-      "start_date": "2022-09-01",
-      "status": "RECRUITING",
-      "study_first_posted": "2021-10-06",
-      "study_type": "OBSERVATIONAL",
-      "title": "Early Detection of Treatment Failure in Metastatic Colorectal Cancer Patients"
-    },
-    {
       "completion_date": "2026-01-07",
       "conditions": [
         "Alzheimer Disease"
@@ -91519,7 +91471,7 @@
       "title": "Tempus Open Link for Individual Voices in Innovative Analytics Registry: Platform Protocol for Multimodal Real-World Evidence in Cancer"
     }
   ],
-  "study_count": 2597,
+  "study_count": 2595,
   "version_source": {
     "sha256": "6b285dee70766aa8e7cd83c4af568509a5d7a5710019d158b982cbd77c7d6560",
     "url": "https://clinicaltrials.gov/api/v2/version"
