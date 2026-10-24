@@ -10,6 +10,7 @@ on:
       - scripts/collect_clinical_trials.py
       - scripts/update_multiomics.py
       - scripts/build_multiomics_summary.py
+      - scripts/verify_multiomics.py
       - .github/workflows/multiomics-source.yml
 
 permissions:
@@ -34,25 +35,10 @@ jobs:
         run: |
           python scripts/update_multiomics.py
           python scripts/build_multiomics_summary.py
-      - name: Validate canonical API
-        run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          root = Path('api/v1/multiomics')
-          trials = json.loads((root/'clinical-trials.json').read_text())
-          costs = json.loads((root/'sequencing-costs.json').read_text())
-          approvals = json.loads((root/'fda-approvals.json').read_text())
-          summary = json.loads((root/'summary.json').read_text())
-          assert trials['study_count'] > 0 and trials['api_version'].get('dataTimestamp')
-          assert len(costs['observations']) >= 10
-          assert approvals['approval_count'] > 0
-          assert summary['clinical_trials']['study_count'] == trials['study_count']
-          assert summary['sequencing_costs']['observation_count'] == len(costs['observations'])
-          assert summary['fda_approvals']['approval_count'] == approvals['approval_count']
-          assert 'studies' not in summary['clinical_trials']
-          assert 'approvals' not in summary['fda_approvals']
-          PY
+      - name: Run canonical unit tests
+        run: python -m unittest discover -s tests -v
+      - name: Verify canonical multiomics artifacts
+        run: python scripts/verify_multiomics.py --root api/v1/multiomics
       - name: Commit changed evidence
         run: |
           git config user.name github-actions[bot]
