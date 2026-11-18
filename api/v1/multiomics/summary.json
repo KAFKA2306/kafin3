@@ -2,22 +2,22 @@
   "clinical_trials": {
     "coverage_years": 5,
     "first_study_posted": "2021-11-15",
-    "last_study_posted": "2026-11-17",
+    "last_study_posted": "2026-11-18",
     "modality_counts": {
-      "genomics": 411,
+      "genomics": 412,
       "multiomics": 139,
       "proteomics": 185,
       "transcriptomics": 114,
-      "unknown": 1906
+      "unknown": 1909
     },
-    "study_count": 2654
+    "study_count": 2658
   },
   "fda_approvals": {
-    "approval_count": 25298,
+    "approval_count": 25317,
     "coverage_years": 5,
     "source_url": "https://www.fda.gov/media/89850/download?attachment="
   },
-  "retrieved_at": "2026-11-17T10:00:05",
+  "retrieved_at": "2026-11-18T10:00:05",
   "schema_version": 1,
   "sequencing_costs": {
     "first_observation_date": "2001-09-30",
